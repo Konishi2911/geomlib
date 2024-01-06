@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  lalib:
+    build: 
+      context: .
+    volumes: 
+      - type: bind
+        source: './'
+        target: '/home/geomlib'
+    tty: true
+    stdin_open: true
