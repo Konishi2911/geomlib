@@ -72,7 +72,7 @@ inline auto Affine<N>::transform(const lalib::DynVecD& vec, lalib::DynVecD& rslt
 
 
 template<>
-inline auto rotate<2, 1>(double angle) noexcept -> Affine<2> {
+inline auto rotate<2, 0>(double angle) noexcept -> Affine<2> {
     auto mat = lalib::MatD<2, 2>({
         std::cos(angle),    -std::sin(angle),
         std::sin(angle),    std::cos(angle) 
@@ -81,7 +81,7 @@ inline auto rotate<2, 1>(double angle) noexcept -> Affine<2> {
 }
 
 template<>
-inline auto rotate<3, 1>(double angle) noexcept -> Affine<3> {
+inline auto rotate<3, 0>(double angle) noexcept -> Affine<3> {
     auto mat = lalib::MatD<3, 3>({
         1.0,    0.0,                0.0,
         0.0,    std::cos(angle),    -std::sin(angle),
@@ -91,7 +91,7 @@ inline auto rotate<3, 1>(double angle) noexcept -> Affine<3> {
 }
 
 template<>
-inline auto rotate<3, 2>(double angle) noexcept -> Affine<3> {
+inline auto rotate<3, 1>(double angle) noexcept -> Affine<3> {
     auto mat = lalib::MatD<3, 3>({
         std::cos(angle),    0.0,    std::sin(angle),
         0.0,                1.0,    0.0,
@@ -101,7 +101,7 @@ inline auto rotate<3, 2>(double angle) noexcept -> Affine<3> {
 }
 
 template<>
-inline auto rotate<3, 3>(double angle) noexcept -> Affine<3> {
+inline auto rotate<3, 2>(double angle) noexcept -> Affine<3> {
     auto mat = lalib::MatD<3, 3>({
         std::cos(angle),    -std::sin(angle),   0.0,
         std::sin(angle),    std::cos(angle),    0.0,
