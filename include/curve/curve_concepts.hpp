@@ -1,4 +1,7 @@
 #pragma once 
+#ifndef GEOMLIB_CURVE_CONCEPTS_HPP
+#define GEOMLIB_CURVE_CONCEPTS_HPP
+
 #include <type_traits>
 #include <concepts>
 
@@ -21,3 +24,5 @@ concept Curve = requires(const T& t) {
 };
 
 }
+
+#endif

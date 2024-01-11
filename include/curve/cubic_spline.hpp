@@ -1,4 +1,7 @@
 #pragma once 
+#ifndef GEOMLIB_CUBIC_SPLINE_HPP
+#define GEOMLIB_CUBIC_SPLINE_HPP
+
 #include <algorithm>
 #include "../../third_party/lalib/include/vec.hpp"
 #include "../../third_party/lalib/include/solver/tri_diag.hpp"
@@ -235,3 +238,5 @@ inline auto CubicSpline<N>::__calc_seg_dp(size_t seg_id, double s) const noexcep
     return p;
 }
 }
+
+#endif

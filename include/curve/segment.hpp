@@ -1,4 +1,7 @@
 #pragma once 
+#ifndef GEOMLIB_SEGMENT_HPP
+#define GEOMLIB_SEGMENT_HPP
+
 #include <array>
 #include "../../third_party/lalib/include/vec.hpp"
 
@@ -69,3 +72,5 @@ inline auto Segment<N>::tangent(double) const noexcept -> VectorType
 }
 
 }
+
+#endif
