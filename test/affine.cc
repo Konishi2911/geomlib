@@ -3,7 +3,7 @@
 #include "../include/affine.hpp"
 
 TEST(AffineTests, Rotation2DTest) {
-    const auto affine = geomlib::rotate<2, 1>(std::numbers::pi / 6.0);
+    const auto affine = geomlib::rotate<2, 0>(std::numbers::pi / 6.0);
     auto ex = lalib::VecD<2>({ 1.0, 0.0 });
     auto ey = lalib::VecD<2>({ 0.0, 1.0 });
     
@@ -18,7 +18,7 @@ TEST(AffineTests, Rotation2DTest) {
 }
 
 TEST(AffineTests, Rotation3DXTest) {
-    const auto affine = geomlib::rotate<3, 1>(std::numbers::pi / 6.0);
+    const auto affine = geomlib::rotate<3, 0>(std::numbers::pi / 6.0);
     auto ex = lalib::VecD<3>({ 1.0, 0.0, 0.0 });
     auto ey = lalib::VecD<3>({ 0.0, 1.0, 0.0 });
     auto ez = lalib::VecD<3>({ 0.0, 0.0, 1.0 });
@@ -41,7 +41,7 @@ TEST(AffineTests, Rotation3DXTest) {
 }
 
 TEST(AffineTests, Rotation3DYTest) {
-    const auto affine = geomlib::rotate<3, 2>(std::numbers::pi / 6.0);
+    const auto affine = geomlib::rotate<3, 1>(std::numbers::pi / 6.0);
     auto ex = lalib::VecD<3>({ 1.0, 0.0, 0.0 });
     auto ey = lalib::VecD<3>({ 0.0, 1.0, 0.0 });
     auto ez = lalib::VecD<3>({ 0.0, 0.0, 1.0 });
@@ -64,7 +64,7 @@ TEST(AffineTests, Rotation3DYTest) {
 }
 
 TEST(AffineTests, Rotation3DZTest) {
-    const auto affine = geomlib::rotate<3, 3>(std::numbers::pi / 6.0);
+    const auto affine = geomlib::rotate<3, 2>(std::numbers::pi / 6.0);
     auto ex = lalib::VecD<3>({ 1.0, 0.0, 0.0 });
     auto ey = lalib::VecD<3>({ 0.0, 1.0, 0.0 });
     auto ez = lalib::VecD<3>({ 0.0, 0.0, 1.0 });
