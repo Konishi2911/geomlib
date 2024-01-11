@@ -10,4 +10,4 @@ WORKDIR /tmp/cmake-3.21.1
 RUN export CC=gcc-10 && export CXX=g++-10 \
 	&& ./bootstrap -- -DCMAKE_USE_OPENSSL=OFF && make && make install
 
-RUN apt-get install -y libopenblas-dev liblapack-dev
+RUN apt-get install -y libopenblas-dev liblapack-dev liblapacke-dev
