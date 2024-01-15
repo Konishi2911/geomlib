@@ -16,11 +16,15 @@ concept Curve = requires(const T& t) {
     { t(std::declval<double>()) } -> std::convertible_to<typename T::PointType>;
     { t.point(std::declval<double>()) } -> std::convertible_to<typename T::PointType>;
 
-    // Query to get the length of the curve.
-    { t.length() } -> std::convertible_to<double>;
-
     // Query to get the normalized tangent vector at the specified position.
     { t.tangent(std::declval<double>()) } -> std::convertible_to<typename T::VectorType>;
+};
+
+template<typename T>
+concept LengthMeasurableCurve = Curve<T> &&
+requires(const T& t) {
+    // Query to get the length of the curve.
+    { t.length() } -> std::convertible_to<double>;
 };
 
 }
