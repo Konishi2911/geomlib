@@ -118,3 +118,15 @@ TEST(AffineTests, SegmentRotationTest) {
     ASSERT_NEAR(0.0, trans_seg.point(1.0)[0], 1.0e-14);
     ASSERT_DOUBLE_EQ(std::sqrt(2.0), trans_seg.point(1.0)[1]);
 }
+
+TEST(AffineTests, CompositeTest) {
+    auto p = lalib::VecD<2>({2.0, 0.0});
+    auto a1 = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>({ 1.0, 0.0 }));
+    auto a2 = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>({ 1.0, 0.0 }));
+
+    a1.composite(a2);
+    a1.transform(p);
+
+    ASSERT_DOUBLE_EQ(1.0, p[0]);
+    ASSERT_DOUBLE_EQ(1.0, p[1]);
+}

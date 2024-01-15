@@ -45,6 +45,8 @@ public:
     auto transform(lalib::DynVecD& vec) const noexcept -> lalib::DynVecD&;
     auto transformed(const lalib::DynVecD& vec) const noexcept -> lalib::DynVecD;
 
+    auto composite(const Affine<N>& a) noexcept -> Affine<N>&;
+
 private:
     lalib::MatD<N, N> _c;
     lalib::VecD<N> _b;
@@ -131,6 +133,15 @@ inline auto Affine<N>::transformed(const lalib::DynVecD &vec) const noexcept -> 
     auto p = lalib::DynVecD::uninit(N);
     this->transform(vec, p);
     return p;
+}
+
+template <size_t N>
+inline auto Affine<N>::composite(const Affine<N> &a) noexcept -> Affine<N>&
+{
+    lalib::mul(1.0, a._c, this->_c, 0.0, this->_c);
+    lalib::mul(1.0, a._c, this->_b, 0.0, this->_b);
+    lalib::add(this->_b, a._b, this->_b);
+    return *this;
 }
 
 template<>
