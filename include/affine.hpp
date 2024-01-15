@@ -38,7 +38,12 @@ public:
     Affine(lalib::MatD<N, N>&& c, lalib::VecD<N>&& b) noexcept;
 
     auto transform(const lalib::VecD<N>& vec, lalib::VecD<N>& rslt) const noexcept -> lalib::VecD<N>&;
+    auto transform(lalib::VecD<N>& vec) const noexcept -> lalib::VecD<N>&;
+    auto transformed(const lalib::VecD<N>& vec) const noexcept -> lalib::VecD<N>;
+
     auto transform(const lalib::DynVecD& vec, lalib::DynVecD& rslt) const noexcept -> lalib::DynVecD&;
+    auto transform(lalib::DynVecD& vec) const noexcept -> lalib::DynVecD&;
+    auto transformed(const lalib::DynVecD& vec) const noexcept -> lalib::DynVecD;
 
 private:
     lalib::MatD<N, N> _c;
@@ -92,15 +97,44 @@ inline auto Affine<N>::transform(const lalib::VecD<N>& vec, lalib::VecD<N>& rslt
 }
 
 template <size_t N>
+inline auto Affine<N>::transform(lalib::VecD<N> &vec) const noexcept -> lalib::VecD<N> &
+{
+    this->transform(vec, vec);
+    return vec;
+}
+
+template <size_t N>
+inline auto Affine<N>::transformed(const lalib::VecD<N> &vec) const noexcept -> lalib::VecD<N>
+{
+    auto p = lalib::VecD<N>::uninit();
+    this->transform(vec, p);
+    return p;
+}
+
+template <size_t N>
 inline auto Affine<N>::transform(const lalib::DynVecD& vec, lalib::DynVecD& rslt) const noexcept -> lalib::DynVecD& {
     lalib::mul(1.0, this->_c, vec, 0.0, rslt);
     lalib::add(rslt, this->_b, rslt);
     return rslt;
 }
 
+template <size_t N>
+inline auto Affine<N>::transform(lalib::DynVecD &vec) const noexcept -> lalib::DynVecD &
+{
+    this->transform(vec, vec);
+    return vec;
+}
+
+template <size_t N>
+inline auto Affine<N>::transformed(const lalib::DynVecD &vec) const noexcept -> lalib::DynVecD
+{
+    auto p = lalib::DynVecD::uninit(N);
+    this->transform(vec, p);
+    return p;
+}
 
 template<>
-inline auto rotate<2, 0>(double angle) noexcept -> Affine<2> {
+[[deprecated]] inline auto rotate<2, 0>(double angle) noexcept -> Affine<2> {
     auto mat = lalib::MatD<2, 2>({
         std::cos(angle),    -std::sin(angle),
         std::sin(angle),    std::cos(angle) 
