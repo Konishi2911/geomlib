@@ -48,6 +48,9 @@ private:
 template<size_t N, size_t AXIS>
 auto rotate(double angle) noexcept -> Affine<N> = delete;
 
+auto rotate2d(double angle, const lalib::VecD<2>& pivot) noexcept -> Affine<2>;
+
+
 template<size_t N>
 auto translate(const lalib::VecD<N>& p) noexcept -> Affine<N>;
 
@@ -133,6 +136,16 @@ inline auto rotate<3, 2>(double angle) noexcept -> Affine<3> {
         0.0,                0.0,                1.0,
     });
     return Affine<3>(std::move(mat), lalib::VecD<3>::filled(0.0));
+}
+
+inline auto rotate2d(double angle, const lalib::VecD<2>& pivot) noexcept -> Affine<2> {
+    auto mat = lalib::MatD<2, 2>({
+        std::cos(angle),    -std::sin(angle),
+        std::sin(angle),    std::cos(angle) 
+    });
+    auto p = pivot - mat * pivot;
+
+    return Affine<2>(std::move(mat), std::move(p));
 }
 
 template<size_t N>

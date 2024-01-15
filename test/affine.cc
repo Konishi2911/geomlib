@@ -18,6 +18,22 @@ TEST(AffineTests, Rotation2DTest) {
     ASSERT_DOUBLE_EQ(std::sqrt(3) / 2.0 , ey[1]);
 }
 
+TEST(AffineTests, Rotation2DWithPivotTest) {
+    auto pivot = lalib::VecD<2>({ 1.0, 0.0 });
+    const auto affine = geomlib::rotate2d(std::numbers::pi / 6.0, pivot);
+    auto zero = lalib::VecD<2>({ 0.0, 0.0 });
+    auto ex = lalib::VecD<2>({ 1.0, 0.0 });
+
+    affine.transform(zero, zero);
+    affine.transform(ex, ex);
+
+    ASSERT_DOUBLE_EQ(1.0 - std::sqrt(3) / 2.0, zero[0]);
+    ASSERT_DOUBLE_EQ(-0.5, zero[1]);
+
+    ASSERT_DOUBLE_EQ(1.0, ex[0]);
+    ASSERT_DOUBLE_EQ(0.0, ex[1]);
+}
+
 TEST(AffineTests, Rotation3DXTest) {
     const auto affine = geomlib::rotate<3, 0>(std::numbers::pi / 6.0);
     auto ex = lalib::VecD<3>({ 1.0, 0.0, 0.0 });
