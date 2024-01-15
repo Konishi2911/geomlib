@@ -194,13 +194,13 @@ inline auto rotate2d(double angle, const lalib::VecD<2>& pivot) noexcept -> Affi
 }
 
 template<size_t N>
-inline auto translate(const lalib::VecD<N>& p) noexcept -> Affine<2> {
+inline auto translate(const lalib::VecD<N>& p) noexcept -> Affine<N> {
     auto affine = Affine<N>(lalib::MatD<N, N>::diag(1.0), p);
     return affine;
 }
 
 template<size_t N>
-inline auto translate(lalib::VecD<N>&& p) noexcept -> Affine<2> {
+inline auto translate(lalib::VecD<N>&& p) noexcept -> Affine<N> {
     auto affine = Affine<N>(lalib::MatD<N, N>::diag(1.0), std::move(p));
     return affine;
 }
