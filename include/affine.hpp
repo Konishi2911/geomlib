@@ -5,8 +5,29 @@
 #include <cstdint>
 #include "../third_party/lalib/include/vec.hpp"
 #include "../third_party/lalib/include/mat.hpp"
+#include "curve/curve_concepts.hpp"
 
 namespace geomlib {
+
+template<size_t N> struct Affine;
+
+template<Curve C, size_t N>
+struct AffineTransformedCurve {
+public:
+    using PointType = lalib::VecD<N>;
+    using VectorType = lalib::VecD<N>;
+
+    AffineTransformedCurve(C&& curve, Affine<N>&& affine) noexcept;
+
+    auto operator()(double s) const noexcept -> PointType;
+    auto point(double s) const noexcept -> PointType;
+    auto tangent(double s) const noexcept -> VectorType;
+
+private:
+    C _curve;
+    Affine<N> _affine;
+};
+
 
 template<size_t N>
 struct Affine {
@@ -32,6 +53,10 @@ auto translate(const lalib::VecD<N>& p) noexcept -> Affine<N>;
 
 template<size_t N>
 auto translate(lalib::VecD<N>&& p) noexcept -> Affine<N>;
+
+
+template<Curve C, size_t N>
+auto transform(C&& curve, Affine<N>&& affine) noexcept -> AffineTransformedCurve<C, N>;
 
 
 // ###### Implementations ####### //
@@ -122,6 +147,39 @@ inline auto translate(lalib::VecD<N>&& p) noexcept -> Affine<2> {
     return affine;
 }
 
+template <Curve C, size_t N>
+auto transform(C &&curve, Affine<N> &&affine) noexcept -> AffineTransformedCurve<C, N>
+{
+    auto trans_curve = AffineTransformedCurve<C, N>(std::move(curve), std::move(affine));
+    return trans_curve;
+}
+
+template <Curve C, size_t N>
+inline AffineTransformedCurve<C, N>::AffineTransformedCurve(C &&curve, Affine<N> &&affine) noexcept:
+    _curve(std::move(curve)), _affine(std::move(affine))
+{}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::operator()(double s) const noexcept -> PointType
+{
+    return this->point(s);
+}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::point(double s) const noexcept -> PointType
+{
+    auto p = this->_curve(s);
+    this->_affine.transform(p, p);
+    return p;
+}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::tangent(double s) const noexcept -> VectorType
+{
+    auto tan = this->_curve.tangent(s);
+    auto trans_tan = this->_affine.transform(tan);
+    return trans_tan;
+}
 }
 
 #endif
