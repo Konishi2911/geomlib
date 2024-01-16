@@ -49,7 +49,7 @@ private:
 
     auto __search_seg_id(double s) const noexcept -> size_t;
     auto __seg_length(size_t seg_id) const noexcept -> double;
-    auto __seg_local_pos(double glob_pos) const noexcept -> double;
+    auto __seg_local_pos(double glob_pos, size_t segid) const noexcept -> double;
 
     auto __calc_seg_p(size_t seg_id, double local_pos) const noexcept -> PointType;
     auto __calc_seg_dp(size_t seg_id, double local_pos) const noexcept -> VectorType;
@@ -97,7 +97,7 @@ template <size_t N>
 inline auto CubicSpline<N>::point(double s) const noexcept -> PointType
 {
     auto seg_id = this->__search_seg_id(s);
-    auto local_s = this->__seg_local_pos(s);
+    auto local_s = this->__seg_local_pos(s, seg_id);
 
     auto p = this->__calc_seg_p(seg_id, local_s);
     return p;
@@ -113,7 +113,7 @@ template <size_t N>
 inline auto CubicSpline<N>::dp(double s) const noexcept -> VectorType
 {
     auto seg_id = this->__search_seg_id(s);
-    auto local_s = this->__seg_local_pos(s);
+    auto local_s = this->__seg_local_pos(s, seg_id);
 
     auto p = this->__calc_seg_dp(seg_id, local_s);
     return p;
@@ -199,13 +199,10 @@ inline auto CubicSpline<N>::__calc_coeffs(const std::vector<PointType> &nodes) n
 template <size_t N>
 inline auto CubicSpline<N>::__search_seg_id(double s) const noexcept -> size_t
 {
-    auto len = this->length();
-    for (auto i = 1u; i < this->_cumul_length.size(); ++i) {
-        if (s <= this->_cumul_length[i] / len) {
-            return i - 1;
-        }
-    }
-    return this->n_segments() - 1;  // last segment 
+    s = std::clamp(s, 0.0, 1.0 - std::numeric_limits<double>::epsilon());
+    auto n_segs = this->n_segments();
+    auto sid = static_cast<size_t>(std::floor(s * n_segs));
+    return sid;
 }
 
 template <size_t N>
@@ -216,11 +213,10 @@ inline auto CubicSpline<N>::__seg_length(size_t seg_id) const noexcept -> double
 }
 
 template <size_t N>
-inline auto CubicSpline<N>::__seg_local_pos(double glob_pos) const noexcept -> double
+inline auto CubicSpline<N>::__seg_local_pos(double glob_pos, size_t segid) const noexcept -> double
 {
-    auto total_length = this->length();
-    auto seg_id = this->__search_seg_id(glob_pos);
-    auto s = (glob_pos * total_length - this->_cumul_length[seg_id]) / this->__seg_length(seg_id);
+    auto n_segs = this->n_segments();
+    auto s = glob_pos * n_segs - segid;
     return s;
 }
 
