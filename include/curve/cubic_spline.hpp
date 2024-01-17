@@ -33,6 +33,10 @@ public:
     /// @return length of the segment
     auto length() const noexcept -> double;
 
+    /// @brief  Returns the length from starting point to the given `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
+
     auto dp(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the tangent vector
@@ -47,12 +51,15 @@ private:
     static auto __calc_coeffs(const std::vector<PointType>& nodes) noexcept 
         -> std::vector<std::array<VectorType, 4>>;
 
-    auto __search_seg_id(double s) const noexcept -> size_t;
+    auto __get_seg_id(double s) const noexcept -> size_t;
     auto __seg_length(size_t seg_id) const noexcept -> double;
-    auto __seg_local_pos(double glob_pos) const noexcept -> double;
+    auto __seg_local_pos(double glob_pos, size_t segid) const noexcept -> double;
 
     auto __calc_seg_p(size_t seg_id, double local_pos) const noexcept -> PointType;
     auto __calc_seg_dp(size_t seg_id, double local_pos) const noexcept -> VectorType;
+
+    template<std::invocable<double> F>
+    static auto __int(double st, double ed, F&& f, size_t n_div) noexcept -> decltype(f(st));
 };
 
 template <size_t N>
@@ -96,8 +103,8 @@ inline auto CubicSpline<N>::operator()(double s) const noexcept -> PointType
 template <size_t N>
 inline auto CubicSpline<N>::point(double s) const noexcept -> PointType
 {
-    auto seg_id = this->__search_seg_id(s);
-    auto local_s = this->__seg_local_pos(s);
+    auto seg_id = this->__get_seg_id(s);
+    auto local_s = this->__seg_local_pos(s, seg_id);
 
     auto p = this->__calc_seg_p(seg_id, local_s);
     return p;
@@ -110,10 +117,20 @@ inline auto CubicSpline<N>::length() const noexcept -> double
 }
 
 template <size_t N>
+inline auto CubicSpline<N>::length(double s) const noexcept -> double
+{
+    auto sid = this->__get_seg_id(s);
+    auto seg_s = this->__seg_local_pos(s, sid);
+    auto len = this->_cumul_length[sid];
+    len += __int(0.0, seg_s, [&](double s){ return this->__calc_seg_dp(sid, s).norm2(); }, 10);
+    return len;
+}
+
+template <size_t N>
 inline auto CubicSpline<N>::dp(double s) const noexcept -> VectorType
 {
-    auto seg_id = this->__search_seg_id(s);
-    auto local_s = this->__seg_local_pos(s);
+    auto seg_id = this->__get_seg_id(s);
+    auto local_s = this->__seg_local_pos(s, seg_id);
 
     auto p = this->__calc_seg_dp(seg_id, local_s);
     return p;
@@ -197,15 +214,12 @@ inline auto CubicSpline<N>::__calc_coeffs(const std::vector<PointType> &nodes) n
 }
 
 template <size_t N>
-inline auto CubicSpline<N>::__search_seg_id(double s) const noexcept -> size_t
+inline auto CubicSpline<N>::__get_seg_id(double s) const noexcept -> size_t
 {
-    auto len = this->length();
-    for (auto i = 1u; i < this->_cumul_length.size(); ++i) {
-        if (s <= this->_cumul_length[i] / len) {
-            return i - 1;
-        }
-    }
-    return this->n_segments() - 1;  // last segment 
+    s = std::clamp(s, 0.0, 1.0 - std::numeric_limits<double>::epsilon());
+    auto n_segs = this->n_segments();
+    auto sid = static_cast<size_t>(std::floor(s * n_segs));
+    return sid;
 }
 
 template <size_t N>
@@ -216,11 +230,10 @@ inline auto CubicSpline<N>::__seg_length(size_t seg_id) const noexcept -> double
 }
 
 template <size_t N>
-inline auto CubicSpline<N>::__seg_local_pos(double glob_pos) const noexcept -> double
+inline auto CubicSpline<N>::__seg_local_pos(double glob_pos, size_t segid) const noexcept -> double
 {
-    auto total_length = this->length();
-    auto seg_id = this->__search_seg_id(glob_pos);
-    auto s = (glob_pos * total_length - this->_cumul_length[seg_id]) / this->__seg_length(seg_id);
+    auto n_segs = this->n_segments();
+    auto s = glob_pos * n_segs - segid;
     return s;
 }
 
@@ -237,6 +250,26 @@ inline auto CubicSpline<N>::__calc_seg_dp(size_t seg_id, double s) const noexcep
     auto p = this->_c[seg_id][1] + 2.0 * this->_c[seg_id][2] * s + 3.0 * this->_c[seg_id][3] * std::pow(s, 2);
     return p;
 }
+
+template <size_t N>
+template <std::invocable<double> F>
+inline auto CubicSpline<N>::__int(double st, double ed, F &&f, size_t n_div) noexcept -> decltype(f(st))
+{
+    auto ds = ed - st;
+    auto len = decltype(f(std::declval<double>()))();
+    for (auto k = 0u; k <= n_div - 2; k += 2) {
+        const auto s0 = ds * static_cast<double>(k) / n_div + st;
+        const auto s1 = ds * static_cast<double>(k + 1) / n_div + st;
+        const auto s2 = ds * static_cast<double>(k + 2) / n_div + st;
+        const auto f0 = f(s0);
+        const auto f1 = f(s1);
+        const auto f2 = f(s2);
+
+        len += (f0 + 4.0 * f1 + f2) * ds / (3.0 * n_div);
+    }
+    return len;
+}
+
 }
 
 #endif
