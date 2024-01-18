@@ -3,6 +3,7 @@
 #define GEOMLIB_CURVE_POLYLINE_HPP
 
 #include "../../third_party/lalib/include/vec.hpp"
+#include "segment.hpp"
 #include <array>
 #include <vector>
 #include <cassert>
@@ -15,12 +16,43 @@ public:
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 
+    struct SegmentViewIterator {
+        SegmentViewIterator() noexcept;
+        SegmentViewIterator(const std::vector<PointType>& nodes) noexcept;
+        SegmentViewIterator(const std::vector<PointType>& nodes, size_t cursor) noexcept;
+        SegmentViewIterator(const SegmentViewIterator&) noexcept = default;
+        SegmentViewIterator(SegmentViewIterator&&) noexcept = default;
+
+        static auto sentinel(const std::vector<PointType>& nodes) noexcept -> SegmentViewIterator;
+
+        // Conforming to the weakly incrementable
+        using value_type = SegmentView<N>;
+        using difference_type = ptrdiff_t;
+        auto operator=(const SegmentViewIterator&) noexcept -> SegmentViewIterator&;
+        auto operator=(SegmentViewIterator&&) noexcept -> SegmentViewIterator& = default;
+        auto operator++() noexcept -> SegmentViewIterator&;
+        auto operator++(int) noexcept -> SegmentViewIterator;
+
+        // Conforming to the input_output_iterator
+        auto operator*() const noexcept -> SegmentView<N>;
+
+        auto operator==(const SegmentViewIterator& other) const noexcept -> bool;
+        auto operator!=(const SegmentViewIterator& other) const noexcept -> bool;
+
+    private:
+        std::optional<std::reference_wrapper<const std::vector<PointType>>> _nodes;
+        size_t _cursor;
+    };
+
     Polyline(const std::vector<PointType>& nodes);
     Polyline(std::vector<PointType>&& nodes);
 
     /// @brief  Returns the number of segments in the polyline
     /// @return the number of segments
     auto n_segments() const noexcept -> size_t;
+
+    auto begin() const noexcept -> SegmentViewIterator;
+    auto end() const noexcept -> SegmentViewIterator;
 
     auto operator()(double s) const noexcept -> PointType;
 
@@ -67,6 +99,18 @@ inline auto Polyline<N>::n_segments() const noexcept -> size_t
 {
     auto n_seg = this->_nodes.size() - 1;
     return n_seg;
+}
+
+template <size_t N>
+inline auto Polyline<N>::begin() const noexcept -> SegmentViewIterator
+{
+    return SegmentViewIterator(this->_nodes);
+}
+
+template <size_t N>
+inline auto Polyline<N>::end() const noexcept -> SegmentViewIterator
+{
+    return SegmentViewIterator::sentinel(this->_nodes);
 }
 
 template <size_t N>
@@ -156,6 +200,68 @@ inline auto Polyline<N>::__get_seg_id(double local_pos) const noexcept -> size_t
     return this->n_segments() - 1;  // the last segment
 }
 
+template <size_t N>
+inline Polyline<N>::SegmentViewIterator::SegmentViewIterator() noexcept:
+    _nodes(std::nullopt), _cursor(0)
+{ }
+
+template <size_t N>
+inline Polyline<N>::SegmentViewIterator::SegmentViewIterator(const std::vector<PointType> &nodes) noexcept : 
+    _nodes(nodes), _cursor(0)
+{ }
+
+template <size_t N>
+inline Polyline<N>::SegmentViewIterator::SegmentViewIterator(const std::vector<PointType> &nodes, size_t cursor) noexcept : 
+    _nodes(nodes), _cursor(cursor)
+{ }
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::sentinel(const std::vector<PointType> &nodes) noexcept -> SegmentViewIterator
+{
+    return SegmentViewIterator(nodes, nodes.size());
+}
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::operator=(const SegmentViewIterator &iter) noexcept -> SegmentViewIterator &
+{
+    this->_nodes = iter._nodes;
+    this->_cursor = iter._cursor;
+}
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::operator++() noexcept -> SegmentViewIterator &
+{
+    ++this->_cursor;
+    return *this;
+}
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::operator++(int) noexcept -> SegmentViewIterator
+{
+    auto tmp = *this;
+    this->_nodes++;
+    return tmp;
+}
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::operator*() const noexcept -> SegmentView<N>
+{
+    auto view = SegmentView(this->_nodes->get()[this->_cursor], this->_nodes->get()[this->_cursor + 1]);
+    return view;
+}
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::operator==(const SegmentViewIterator &other) const noexcept -> bool
+{
+    auto b = this->_cursor == other._cursor;
+    return b;
+}
+
+template <size_t N>
+inline auto Polyline<N>::SegmentViewIterator::operator!=(const SegmentViewIterator &other) const noexcept -> bool
+{
+    return !((*this) == other);
+}
 }
 
 #endif

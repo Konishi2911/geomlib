@@ -1,5 +1,10 @@
 #include <gtest/gtest.h>
+#include <ranges>
 #include "../../include/curve/polyline.hpp"
+
+static_assert(std::input_iterator<geomlib::Polyline<2>::SegmentViewIterator>);
+static_assert(std::sentinel_for<geomlib::Polyline<2>::SegmentViewIterator, geomlib::Polyline<2>::SegmentViewIterator>);
+static_assert(std::ranges::input_range<geomlib::Polyline<2>>);
 
 TEST(PolylineTests, LengthTest) {
 	auto curve = geomlib::Polyline<2>({
@@ -21,6 +26,27 @@ TEST(PolylineTests, NumOfSegmentTest) {
 	});
 	
 	ASSERT_EQ(3, curve.n_segments());
+}
+
+TEST(PolylineTests, SegmentIterationTest) {
+	auto plist = std::vector({
+		lalib::VecD<2>({ 0.0, 0.0 }),
+		lalib::VecD<2>({ 0.2, 0.2 }),
+		lalib::VecD<2>({ 0.7, 0.7 }),
+		lalib::VecD<2>({ 1.0, 1.0 })
+	});
+	auto curve = geomlib::Polyline<2>(plist);
+
+	auto i = 0u;
+	for (auto&& seg: curve) {
+		ASSERT_DOUBLE_EQ(seg.point(0.0)[0], plist[i][0]);
+		ASSERT_DOUBLE_EQ(seg.point(0.0)[1], plist[i][1]);
+
+		ASSERT_DOUBLE_EQ(seg.point(1.0)[0], plist[i + 1][0]);
+		ASSERT_DOUBLE_EQ(seg.point(1.0)[1], plist[i + 1][1]);
+
+		++i;
+	}
 }
 
 TEST(PolylineTests, InterPolationTest) {
