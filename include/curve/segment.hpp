@@ -4,8 +4,11 @@
 
 #include <array>
 #include "../../third_party/lalib/include/vec.hpp"
+#include "../affine/affine_core.hpp"
 
 namespace geomlib {
+
+template<size_t N> struct Segment;
 
 template<size_t N>
 struct SegmentView {
@@ -33,9 +36,13 @@ public:
     /// @return 
     auto tangent(double s) const noexcept -> VectorType;
 
+    /// @brief transforms itself with given affine transformation object.
+    /// @param affine 
+    auto transformed(const Affine<N>& affine) const noexcept -> Segment<N>;
+
 private:
-    const PointType& _ps;
-    const PointType& _pe;
+    std::reference_wrapper<const PointType> _ps;
+    std::reference_wrapper<const PointType> _pe;
 };
 
 template<size_t N>
@@ -64,6 +71,15 @@ public:
     /// @return 
     auto tangent(double s) const noexcept -> VectorType;
 
+    
+    /// @brief transforms itself with given affine transformation object.
+    /// @param affine 
+    auto transform(const Affine<N>& affine) noexcept -> Segment<N>&;
+
+    /// @brief transforms itself with given affine transformation object.
+    /// @param affine 
+    auto transformed(const Affine<N>& affine) const noexcept -> Segment<N>;
+
 private:
     std::array<lalib::SizedVec<double, N>, 2> _p;
     SegmentView<N> _segment_view;
@@ -87,22 +103,30 @@ template <size_t N>
 inline auto SegmentView<N>::point(double s) const noexcept -> PointType
 {
     s = std::clamp(s, 0.0, 1.0);
-    auto p = s * this->_pe + (1.0 - s) * this->_ps;
+    auto p = s * this->_pe.get() + (1.0 - s) * this->_ps.get();
     return p;
 }
 template <size_t N>
 inline auto SegmentView<N>::length() const noexcept -> double
 {
-    auto length = (_pe - _ps).norm2();
+    auto length = (_pe.get() - _ps.get()).norm2();
     return length;
 }
 template <size_t N>
 inline auto SegmentView<N>::tangent(double) const noexcept -> VectorType
 {
-    auto t = (_pe - _ps) / this->length();
+    auto t = (_pe.get() - _ps.get()) / this->length();
     return t;
 }
 
+template <size_t N>
+inline auto SegmentView<N>::transformed(const Affine<N> &affine) const noexcept -> Segment<N>
+{
+    auto s = affine.transformed(this->_ps.get());
+    auto e = affine.transformed(this->_pe.get());
+    auto seg = Segment(std::move(s), std::move(e));
+    return seg;
+}
 
 template <size_t N>
 inline Segment<N>::Segment(const PointType &s, const PointType &e) noexcept:
@@ -136,6 +160,20 @@ inline auto Segment<N>::tangent(double s) const noexcept -> VectorType
     return this->_segment_view.tangent(s);
 }
 
+template <size_t N>
+inline auto Segment<N>::transform(const Affine<N> &affine) noexcept -> Segment<N> &
+{
+    affine.transform(this->_p[0]);
+    affine.transform(this->_p[1]);
+    this->_segment_view = SegmentView<N>(this->_p[0], this->_p[1]);
+    return *this;
+}
+template <size_t N>
+inline auto Segment<N>::transformed(const Affine<N> &affine) const noexcept -> Segment<N>
+{
+    auto seg = Segment(*this).transform(affine);
+    return seg;
+}
 }
 
 #endif

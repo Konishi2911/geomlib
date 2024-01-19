@@ -43,3 +43,22 @@ TEST(SegmentTests, TangentTest) {
     EXPECT_DOUBLE_EQ(3.0/std::sqrt(14.0), seg.tangent(0.0)[1]);
     EXPECT_DOUBLE_EQ(-1.0/std::sqrt(14.0), seg.tangent(0.0)[2]);
 }
+
+TEST(SegmentTests, AffineTransformationTest) {
+    auto sp = lalib::VecD<3>({0.0, 1.0, 2.0});
+    auto ep = lalib::VecD<3>({2.0, 4.0, 1.0});
+    auto seg = geomlib::Segment(sp, ep);
+
+    auto affine = geomlib::Affine<3>(
+        lalib::MatD<3, 3>({
+            1.0, 0.0, 0.0,
+            0.0, 0.5, 0.0,
+            0.0, 0.0, 1.0
+        }),
+        lalib::VecD<3>::filled(0.0)
+    );
+
+    seg.transform(affine);
+
+    EXPECT_DOUBLE_EQ(std::sqrt(7.25), seg.length());
+}
