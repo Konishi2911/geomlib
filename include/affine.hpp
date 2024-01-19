@@ -5,11 +5,21 @@
 #include <cstdint>
 #include "../third_party/lalib/include/vec.hpp"
 #include "../third_party/lalib/include/mat.hpp"
-#include "curve/curve_concepts.hpp"
+#include "affine/affine_core.hpp"
+#include "curve.hpp"
 
 namespace geomlib {
 
-template<size_t N> struct Affine;
+template<typename T, size_t N>
+concept AffineTransformable = 
+    Curve<T> &&
+    requires(T& t) {
+        { t.transform(std::declval<const Affine<N>&>()) };
+    } &&
+    requires(const T& t) {
+        { t.transformed(std::declval<const Affine<N>&>()) } -> std::convertible_to<T>;
+    };
+
 
 template<Curve C, size_t N>
 struct AffineTransformedCurve {
@@ -29,29 +39,6 @@ private:
 };
 
 
-template<size_t N>
-struct Affine {
-public:
-    Affine(const lalib::MatD<N, N>& c, const lalib::VecD<N>& b) noexcept;
-    Affine(const lalib::MatD<N, N>& c, lalib::VecD<N>&& b) noexcept;
-    Affine(lalib::MatD<N, N>&& c, const lalib::VecD<N>& b) noexcept;
-    Affine(lalib::MatD<N, N>&& c, lalib::VecD<N>&& b) noexcept;
-
-    auto transform(const lalib::VecD<N>& vec, lalib::VecD<N>& rslt) const noexcept -> lalib::VecD<N>&;
-    auto transform(lalib::VecD<N>& vec) const noexcept -> lalib::VecD<N>&;
-    auto transformed(const lalib::VecD<N>& vec) const noexcept -> lalib::VecD<N>;
-
-    auto transform(const lalib::DynVecD& vec, lalib::DynVecD& rslt) const noexcept -> lalib::DynVecD&;
-    auto transform(lalib::DynVecD& vec) const noexcept -> lalib::DynVecD&;
-    auto transformed(const lalib::DynVecD& vec) const noexcept -> lalib::DynVecD;
-
-    auto composite(const Affine<N>& a) noexcept -> Affine<N>&;
-
-private:
-    lalib::MatD<N, N> _c;
-    lalib::VecD<N> _b;
-};
-
 template<size_t N, size_t AXIS>
 auto rotate(double angle) noexcept -> Affine<N> = delete;
 
@@ -69,89 +56,9 @@ template<Curve C, size_t N>
 auto transform(C&& curve, Affine<N>&& affine) noexcept -> AffineTransformedCurve<C, N>;
 
 
+
+
 // ###### Implementations ####### //
-
-template <size_t N>
-inline Affine<N>::Affine(const lalib::MatD<N, N> &c, const lalib::VecD<N> &b) noexcept:
-    _c(c), _b(b)
-{ }
-
-template <size_t N>
-inline Affine<N>::Affine(lalib::MatD<N, N> &&c, const lalib::VecD<N> &b) noexcept:
-    _c(std::move(c)), _b(b)
-{ }
-
-template <size_t N>
-inline Affine<N>::Affine(const lalib::MatD<N, N> &c, lalib::VecD<N> &&b) noexcept:
-    _c(c), _b(std::move(b))
-{ }
-
-template <size_t N>
-inline Affine<N>::Affine(lalib::MatD<N, N> &&c, lalib::VecD<N> &&b) noexcept:
-    _c(std::move(c)), _b(std::move(b))
-{ }
-
-template <size_t N>
-inline auto Affine<N>::transform(const lalib::VecD<N>& vec, lalib::VecD<N>& rslt) const noexcept -> lalib::VecD<N>& {
-    lalib::mul(1.0, this->_c, vec, 0.0, rslt);
-    lalib::add(rslt, this->_b, rslt);
-    return rslt;
-}
-
-template <size_t N>
-inline auto Affine<N>::transform(lalib::VecD<N> &vec) const noexcept -> lalib::VecD<N> &
-{
-    this->transform(vec, vec);
-    return vec;
-}
-
-template <size_t N>
-inline auto Affine<N>::transformed(const lalib::VecD<N> &vec) const noexcept -> lalib::VecD<N>
-{
-    auto p = lalib::VecD<N>::uninit();
-    this->transform(vec, p);
-    return p;
-}
-
-template <size_t N>
-inline auto Affine<N>::transform(const lalib::DynVecD& vec, lalib::DynVecD& rslt) const noexcept -> lalib::DynVecD& {
-    lalib::mul(1.0, this->_c, vec, 0.0, rslt);
-    lalib::add(rslt, this->_b, rslt);
-    return rslt;
-}
-
-template <size_t N>
-inline auto Affine<N>::transform(lalib::DynVecD &vec) const noexcept -> lalib::DynVecD &
-{
-    this->transform(vec, vec);
-    return vec;
-}
-
-template <size_t N>
-inline auto Affine<N>::transformed(const lalib::DynVecD &vec) const noexcept -> lalib::DynVecD
-{
-    auto p = lalib::DynVecD::uninit(N);
-    this->transform(vec, p);
-    return p;
-}
-
-template <size_t N>
-inline auto Affine<N>::composite(const Affine<N> &a) noexcept -> Affine<N>&
-{
-    lalib::mul(1.0, a._c, this->_c, 0.0, this->_c);
-    lalib::mul(1.0, a._c, this->_b, 0.0, this->_b);
-    lalib::add(this->_b, a._b, this->_b);
-    return *this;
-}
-
-template<>
-[[deprecated]] inline auto rotate<2, 0>(double angle) noexcept -> Affine<2> {
-    auto mat = lalib::MatD<2, 2>({
-        std::cos(angle),    -std::sin(angle),
-        std::sin(angle),    std::cos(angle) 
-    });
-    return Affine<2>(std::move(mat), lalib::VecD<2>::filled(0.0));
-}
 
 template<>
 inline auto rotate<3, 0>(double angle) noexcept -> Affine<3> {
@@ -206,10 +113,30 @@ inline auto translate(lalib::VecD<N>&& p) noexcept -> Affine<N> {
 }
 
 template <Curve C, size_t N>
-auto transform(C &&curve, Affine<N> &&affine) noexcept -> AffineTransformedCurve<C, N>
+auto transform_lazy(C &&curve, Affine<N> &&affine) noexcept -> AffineTransformedCurve<C, N>
 {
     auto trans_curve = AffineTransformedCurve<C, N>(std::move(curve), std::move(affine));
     return trans_curve;
+}
+
+template <Curve C, size_t N>
+requires AffineTransformable<C, N>
+inline auto transform(C& curve, const Affine<N> &affine) noexcept -> C& {
+    curve.transform(affine);
+    return curve;
+}
+
+template <Curve C, size_t N>
+requires AffineTransformable<C, N>
+inline auto transformed(const C& curve, const Affine<N> &affine) noexcept -> C {
+    auto c = curve.transformed(affine);
+    return c;
+}
+
+template <size_t N>
+inline auto transformed(const SegmentView<N>& seg_view, const Affine<N>& affine) noexcept -> Segment<N> {
+    auto seg = seg_view.transformed(affine);
+    return seg;
 }
 
 template <Curve C, size_t N>

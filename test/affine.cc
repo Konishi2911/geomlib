@@ -110,7 +110,7 @@ TEST(AffineTests, SegmentRotationTest) {
     );
     auto affine = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>::filled(0.0));
 
-    auto trans_seg = geomlib::transform(std::move(seg), std::move(affine));
+    auto trans_seg = geomlib::transform_lazy(std::move(seg), std::move(affine));
     
     ASSERT_DOUBLE_EQ(0.0, trans_seg.point(0.0)[0]);
     ASSERT_DOUBLE_EQ(0.0, trans_seg.point(0.0)[1]);
