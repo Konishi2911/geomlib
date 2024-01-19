@@ -6,6 +6,21 @@ static_assert(std::input_iterator<geomlib::Polyline<2>::SegmentViewIterator>);
 static_assert(std::sentinel_for<geomlib::Polyline<2>::SegmentViewIterator, geomlib::Polyline<2>::SegmentViewIterator>);
 static_assert(std::ranges::input_range<geomlib::Polyline<2>>);
 
+TEST(PolylineTests, IteratorTest) {
+	auto polyline = geomlib::Polyline<2>({
+		lalib::VecD<2>({ 0.0, 0.0 }),
+		lalib::VecD<2>({ 0.2, 0.2 }),
+		lalib::VecD<2>({ 0.7, 0.7 }),
+		lalib::VecD<2>({ 1.0, 1.0 })
+	});
+
+	auto iter = polyline.begin();
+	EXPECT_DOUBLE_EQ(0.2 * std::sqrt(2), (*iter).length());
+	EXPECT_DOUBLE_EQ(0.5 * std::sqrt(2), (*(++iter)).length());
+	EXPECT_DOUBLE_EQ(0.5 * std::sqrt(2), (*(iter++)).length());
+	EXPECT_DOUBLE_EQ(0.3 * std::sqrt(2), (*iter).length());
+}
+
 TEST(PolylineTests, LengthTest) {
 	auto curve = geomlib::Polyline<2>({
 		lalib::VecD<2>({ 0.0, 0.0 }),

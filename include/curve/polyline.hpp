@@ -226,6 +226,7 @@ inline auto Polyline<N>::SegmentViewIterator::operator=(const SegmentViewIterato
 {
     this->_nodes = iter._nodes;
     this->_cursor = iter._cursor;
+    return *this;
 }
 
 template <size_t N>
@@ -239,7 +240,7 @@ template <size_t N>
 inline auto Polyline<N>::SegmentViewIterator::operator++(int) noexcept -> SegmentViewIterator
 {
     auto tmp = *this;
-    this->_nodes++;
+    this->_cursor++;
     return tmp;
 }
 
