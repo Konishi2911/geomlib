@@ -1,3 +1,6 @@
 [submodule "third_party/lalib"]
 	path = third_party/lalib
 	url = https://github.com/Konishi2911/lalib.git
+[submodule "third_party/mathlib"]
+	path = third_party/mathlib
+	url = https://github.com/Konishi2911/mathlib.git

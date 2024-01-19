@@ -218,7 +218,7 @@ inline Polyline<N>::SegmentViewIterator::SegmentViewIterator(const std::vector<P
 template <size_t N>
 inline auto Polyline<N>::SegmentViewIterator::sentinel(const std::vector<PointType> &nodes) noexcept -> SegmentViewIterator
 {
-    return SegmentViewIterator(nodes, nodes.size());
+    return SegmentViewIterator(nodes, nodes.size() - 1);
 }
 
 template <size_t N>
