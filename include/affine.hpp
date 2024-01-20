@@ -33,6 +33,8 @@ public:
     auto point(double s) const noexcept -> PointType;
     auto tangent(double s) const noexcept -> VectorType;
 
+    auto native() const noexcept -> C requires AffineTransformable<C, N>;
+
 private:
     C _curve;
     Affine<N> _affine;
@@ -164,6 +166,13 @@ inline auto AffineTransformedCurve<C, N>::tangent(double s) const noexcept -> Ve
     auto tan = this->_curve.tangent(s);
     auto trans_tan = this->_affine.transform(tan);
     return trans_tan;
+}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::native() const noexcept -> C
+requires AffineTransformable<C, N>
+{
+    auto native = this->_curve.transformed(this->_affine)
 }
 }
 
