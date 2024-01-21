@@ -34,7 +34,7 @@ public:
     /// @return length of the segment
     auto length() const noexcept -> double;
 
-    /// @brief  Returns the length from starting point to the given `s`.
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
     /// @param s 
     auto length(double s) const noexcept -> double;
 

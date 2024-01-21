@@ -25,6 +25,7 @@ concept LengthMeasurableCurve = Curve<T> &&
 requires(const T& t) {
     // Query to get the length of the curve.
     { t.length() } -> std::convertible_to<double>;
+    { t.length(std::declval<double>()) } -> std::convertible_to<double>;
 };
 
 }

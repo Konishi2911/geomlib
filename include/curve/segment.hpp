@@ -31,6 +31,10 @@ public:
     /// @return length of the segment
     auto length() const noexcept -> double;
 
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
+
     /// @brief  Returns the tangent vector
     /// @param s 
     /// @return 
@@ -65,6 +69,10 @@ public:
     /// @brief  Returns the length of the segment.
     /// @return length of the segment
     auto length() const noexcept -> double;
+
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -113,6 +121,12 @@ inline auto SegmentView<N>::length() const noexcept -> double
     return length;
 }
 template <size_t N>
+inline auto SegmentView<N>::length(double s) const noexcept -> double
+{
+    auto len = s * this->length();
+    return len;
+}
+template <size_t N>
 inline auto SegmentView<N>::tangent(double) const noexcept -> VectorType
 {
     auto t = (_pe.get() - _ps.get()) / this->length();
@@ -153,6 +167,11 @@ template <size_t N>
 inline auto Segment<N>::length() const noexcept -> double
 {
     return this->_segment_view.length();
+}
+template <size_t N>
+inline auto Segment<N>::length(double s) const noexcept -> double
+{
+    return this->_segment_view.length(s);
 }
 template <size_t N>
 inline auto Segment<N>::tangent(double s) const noexcept -> VectorType

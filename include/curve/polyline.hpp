@@ -68,6 +68,10 @@ public:
     /// @return length of the segment
     auto length() const noexcept -> double;
 
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
+
     auto dp(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the tangent vector
@@ -138,6 +142,16 @@ template <size_t N>
 inline auto Polyline<N>::length() const noexcept -> double
 {
     return this->_cumul_length.back();
+}
+
+template <size_t N>
+inline auto Polyline<N>::length(double s) const noexcept -> double
+{
+    auto segid = this->__get_seg_id(s);
+    auto length = this->_cumul_length[segid];
+    auto seg_s = this->__calc_local_seg_pos(s, segid);
+    length += seg_s * (this->__calc_seg_len(segid));
+    return length;
 }
 
 template <size_t N>
