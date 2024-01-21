@@ -7,6 +7,7 @@
 #include "segment.hpp"
 #include <array>
 #include <vector>
+#include <optional>
 #include <cassert>
 
 namespace geomlib {
