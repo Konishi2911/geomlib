@@ -39,7 +39,7 @@ public:
     /// @param s 
     auto length(double s) const noexcept -> double;
 
-    auto dp(double s) const noexcept -> VectorType;
+    auto deriv(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -119,7 +119,7 @@ inline auto CubicSpline<N>::length(double s) const noexcept -> double
 }
 
 template <size_t N>
-inline auto CubicSpline<N>::dp(double s) const noexcept -> VectorType
+inline auto CubicSpline<N>::deriv(double s) const noexcept -> VectorType
 {
     auto seg_id = this->__get_seg_id(s);
     auto local_s = this->__seg_local_pos(s, seg_id);
@@ -131,7 +131,7 @@ inline auto CubicSpline<N>::dp(double s) const noexcept -> VectorType
 template <size_t N>
 inline auto CubicSpline<N>::tangent(double s) const noexcept -> VectorType
 {
-    auto p = this->dp(s);
+    auto p = this->deriv(s);
     p = p / p.norm2();
     return p;
 }

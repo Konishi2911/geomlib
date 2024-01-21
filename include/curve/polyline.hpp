@@ -73,7 +73,7 @@ public:
     /// @param s 
     auto length(double s) const noexcept -> double;
 
-    auto dp(double s) const noexcept -> VectorType;
+    auto deriv(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -156,7 +156,7 @@ inline auto Polyline<N>::length(double s) const noexcept -> double
 }
 
 template <size_t N>
-inline auto Polyline<N>::dp(double s) const noexcept -> VectorType
+inline auto Polyline<N>::deriv(double s) const noexcept -> VectorType
 {
     auto sid = this->__get_seg_id(s);
     auto seg_s = this->__calc_local_seg_pos(s, sid);
@@ -167,7 +167,7 @@ inline auto Polyline<N>::dp(double s) const noexcept -> VectorType
 template <size_t N>
 inline auto Polyline<N>::tangent(double s) const noexcept -> VectorType
 {
-    auto dp = this->dp(s);
+    auto dp = this->deriv(s);
     dp = dp / dp.norm2();
     return dp;
 }

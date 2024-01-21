@@ -33,6 +33,7 @@ public:
 
     auto operator()(double s) const noexcept -> PointType;
     auto point(double s) const noexcept -> PointType;
+    auto deriv(double s) const noexcept -> VectorType;
     auto tangent(double s) const noexcept -> VectorType;
 
     auto transform(const Affine<N>& affine) noexcept -> AffineTransformedCurve<C, N>&;
@@ -208,11 +209,19 @@ inline auto AffineTransformedCurve<C, N>::point(double s) const noexcept -> Poin
 }
 
 template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::deriv(double s) const noexcept -> VectorType
+{
+    auto deriv = this->_curve.deriv(s);
+    this->_affine.transform(deriv);
+    return deriv;
+}
+
+template <Curve C, size_t N>
 inline auto AffineTransformedCurve<C, N>::tangent(double s) const noexcept -> VectorType
 {
-    auto tan = this->_curve.tangent(s);
-    auto trans_tan = this->_affine.transform(tan);
-    return trans_tan;
+    auto tan = this->deriv(s);
+    tan = tan / tan.norm2();
+    return tan;
 }
 
 template <Curve C, size_t N>

@@ -28,6 +28,9 @@ public:
     /// @return     a point on the segment
     auto point(double s) const noexcept -> PointType;
 
+    /// @brief  Returns the derivative of the segment.
+    auto deriv(double s) const noexcept -> VectorType;
+
     /// @brief  Returns the length of the segment.
     /// @return length of the segment
     auto length() const noexcept -> double;
@@ -67,6 +70,8 @@ public:
     /// @param s    local position `s` which range is [0.0, 1.0].
     /// @return     a point on the segment
     auto point(double s) const noexcept -> PointType;
+
+    auto deriv(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the length of the segment.
     /// @return length of the segment
@@ -117,6 +122,12 @@ inline auto SegmentView<N>::point(double s) const noexcept -> PointType
     return p;
 }
 template <size_t N>
+inline auto SegmentView<N>::deriv(double) const noexcept -> VectorType
+{
+    return (this->_pe - this->_ps) / this->length();
+}
+
+template <size_t N>
 inline auto SegmentView<N>::length() const noexcept -> double
 {
     auto length = (_pe.get() - _ps.get()).norm2();
@@ -164,6 +175,11 @@ template <size_t N>
 inline auto Segment<N>::point(double s) const noexcept -> PointType
 {
     return this->_segment_view.point(s);
+}
+template <size_t N>
+inline auto Segment<N>::deriv(double s) const noexcept -> VectorType
+{
+    return this->_segment_view.deriv(s);
 }
 template <size_t N>
 inline auto Segment<N>::length() const noexcept -> double
