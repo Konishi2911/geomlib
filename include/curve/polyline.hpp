@@ -15,6 +15,7 @@ namespace geomlib {
 template<size_t N>
 struct Polyline {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 
@@ -68,7 +69,11 @@ public:
     /// @return length of the segment
     auto length() const noexcept -> double;
 
-    auto dp(double s) const noexcept -> VectorType;
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
+
+    auto deriv(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -141,18 +146,29 @@ inline auto Polyline<N>::length() const noexcept -> double
 }
 
 template <size_t N>
-inline auto Polyline<N>::dp(double s) const noexcept -> VectorType
+inline auto Polyline<N>::length(double s) const noexcept -> double
+{
+    auto segid = this->__get_seg_id(s);
+    auto length = this->_cumul_length[segid];
+    auto seg_s = this->__calc_local_seg_pos(s, segid);
+    length += seg_s * (this->__calc_seg_len(segid));
+    return length;
+}
+
+template <size_t N>
+inline auto Polyline<N>::deriv(double s) const noexcept -> VectorType
 {
     auto sid = this->__get_seg_id(s);
     auto seg_s = this->__calc_local_seg_pos(s, sid);
-    auto dp = (this->_nodes[sid + 1] - this->_nodes[sid]) / this->__calc_seg_len(sid);
+    auto ds = this->__calc_seg_len(sid) / this->length();
+    auto dp = (this->_nodes[sid + 1] - this->_nodes[sid]) / ds;
     return dp;
 }
 
 template <size_t N>
 inline auto Polyline<N>::tangent(double s) const noexcept -> VectorType
 {
-    auto dp = this->dp(s);
+    auto dp = this->deriv(s);
     dp = dp / dp.norm2();
     return dp;
 }

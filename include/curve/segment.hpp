@@ -13,6 +13,7 @@ template<size_t N> struct Segment;
 template<size_t N>
 struct SegmentView {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 
@@ -27,9 +28,16 @@ public:
     /// @return     a point on the segment
     auto point(double s) const noexcept -> PointType;
 
+    /// @brief  Returns the derivative of the segment.
+    auto deriv(double s) const noexcept -> VectorType;
+
     /// @brief  Returns the length of the segment.
     /// @return length of the segment
     auto length() const noexcept -> double;
+
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -48,6 +56,7 @@ private:
 template<size_t N>
 struct Segment {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 
@@ -62,9 +71,15 @@ public:
     /// @return     a point on the segment
     auto point(double s) const noexcept -> PointType;
 
+    auto deriv(double s) const noexcept -> VectorType;
+
     /// @brief  Returns the length of the segment.
     /// @return length of the segment
     auto length() const noexcept -> double;
+
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
+    /// @param s 
+    auto length(double s) const noexcept -> double;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -107,10 +122,22 @@ inline auto SegmentView<N>::point(double s) const noexcept -> PointType
     return p;
 }
 template <size_t N>
+inline auto SegmentView<N>::deriv(double) const noexcept -> VectorType
+{
+    return (this->_pe.get() - this->_ps.get());
+}
+
+template <size_t N>
 inline auto SegmentView<N>::length() const noexcept -> double
 {
     auto length = (_pe.get() - _ps.get()).norm2();
     return length;
+}
+template <size_t N>
+inline auto SegmentView<N>::length(double s) const noexcept -> double
+{
+    auto len = s * this->length();
+    return len;
 }
 template <size_t N>
 inline auto SegmentView<N>::tangent(double) const noexcept -> VectorType
@@ -150,9 +177,19 @@ inline auto Segment<N>::point(double s) const noexcept -> PointType
     return this->_segment_view.point(s);
 }
 template <size_t N>
+inline auto Segment<N>::deriv(double s) const noexcept -> VectorType
+{
+    return this->_segment_view.deriv(s);
+}
+template <size_t N>
 inline auto Segment<N>::length() const noexcept -> double
 {
     return this->_segment_view.length();
+}
+template <size_t N>
+inline auto Segment<N>::length(double s) const noexcept -> double
+{
+    return this->_segment_view.length(s);
 }
 template <size_t N>
 inline auto Segment<N>::tangent(double s) const noexcept -> VectorType

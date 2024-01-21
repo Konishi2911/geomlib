@@ -12,6 +12,7 @@ namespace geomlib {
 template<size_t N>
 struct CubicSpline {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 
@@ -34,11 +35,11 @@ public:
     /// @return length of the segment
     auto length() const noexcept -> double;
 
-    /// @brief  Returns the length from starting point to the given `s`.
+    /// @brief  Returns the length from starting point to the intermediate position `s`.
     /// @param s 
     auto length(double s) const noexcept -> double;
 
-    auto dp(double s) const noexcept -> VectorType;
+    auto deriv(double s) const noexcept -> VectorType;
 
     /// @brief  Returns the tangent vector
     /// @param s 
@@ -118,19 +119,20 @@ inline auto CubicSpline<N>::length(double s) const noexcept -> double
 }
 
 template <size_t N>
-inline auto CubicSpline<N>::dp(double s) const noexcept -> VectorType
+inline auto CubicSpline<N>::deriv(double s) const noexcept -> VectorType
 {
     auto seg_id = this->__get_seg_id(s);
     auto local_s = this->__seg_local_pos(s, seg_id);
 
     auto p = this->__calc_seg_dp(seg_id, local_s);
+    lalib::scale(static_cast<double>(this->n_segments()), p);
     return p;
 }
 
 template <size_t N>
 inline auto CubicSpline<N>::tangent(double s) const noexcept -> VectorType
 {
-    auto p = this->dp(s);
+    auto p = this->deriv(s);
     p = p / p.norm2();
     return p;
 }
