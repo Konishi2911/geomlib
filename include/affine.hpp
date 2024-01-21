@@ -47,26 +47,13 @@ private:
 };
 
 
+
+/* ############################################################### *\
+ * Helper functions to create the affine transformation object     *
+\* ############################################################### */
+
 template<size_t N, size_t AXIS>
 auto rotate(double angle) noexcept -> Affine<N> = delete;
-
-auto rotate2d(double angle, const lalib::VecD<2>& pivot) noexcept -> Affine<2>;
-
-
-template<size_t N>
-auto translate(const lalib::VecD<N>& p) noexcept -> Affine<N>;
-
-template<size_t N>
-auto translate(lalib::VecD<N>&& p) noexcept -> Affine<N>;
-
-
-template<Curve C, size_t N>
-auto transform(C&& curve, Affine<N>&& affine) noexcept -> AffineTransformedCurve<C, N>;
-
-
-
-
-// ###### Implementations ####### //
 
 template<>
 inline auto rotate<3, 0>(double angle) noexcept -> Affine<3> {
@@ -98,6 +85,10 @@ inline auto rotate<3, 2>(double angle) noexcept -> Affine<3> {
     return Affine<3>(std::move(mat), lalib::VecD<3>::filled(0.0));
 }
 
+/// @brief  Creates a 2D-affine transformation object representing the rigid rotation.
+/// @param angle    rotating angle (CCW is positive)
+/// @param pivot    pivot position of the roattion 
+/// @return 
 inline auto rotate2d(double angle, const lalib::VecD<2>& pivot) noexcept -> Affine<2> {
     auto mat = lalib::MatD<2, 2>({
         std::cos(angle),    -std::sin(angle),
@@ -108,18 +99,41 @@ inline auto rotate2d(double angle, const lalib::VecD<2>& pivot) noexcept -> Affi
     return Affine<2>(std::move(mat), std::move(p));
 }
 
+/// @brief  Creates an affine transformation object representing isotropic scaling.
+/// @tparam N   dimension
+/// @param mag          magnification factor (e.g. 2 doubles geometries) 
+/// @param translate    translation after scaling operation (default is zero)  
+template<size_t N>
+inline auto scale(double mag, lalib::VecD<N>&& translate = lalib::VecD<N>::filled(0.0)) noexcept -> Affine<N> {
+    auto mat = lalib::MatD<N, N>::diag(mag);
+    auto affine = Affine<N>(std::move(mat), std::move(translate));
+    return affine;
+}
+
+/// @brief Creates an affine transformation object representing a translation.
+/// @tparam N   dimension
+/// @param p    translation vector 
 template<size_t N>
 inline auto translate(const lalib::VecD<N>& p) noexcept -> Affine<N> {
     auto affine = Affine<N>(lalib::MatD<N, N>::diag(1.0), p);
     return affine;
 }
 
+/// @brief Creates an affine transformation object representing a translation.
+/// @tparam N   dimension
+/// @param p    translation vector 
 template<size_t N>
 inline auto translate(lalib::VecD<N>&& p) noexcept -> Affine<N> {
     auto affine = Affine<N>(lalib::MatD<N, N>::diag(1.0), std::move(p));
     return affine;
 }
 
+/// @brief  Applies the given curve the specified transformation with lazy evaluation.
+/// @tparam C   an arbitrary curve type that conforms to the concept `Curve`
+/// @tparam N   dimension 
+/// @param curve    a curve to be applied the transformation 
+/// @param affine   an affine transformation object 
+/// @return 
 template <Curve C, size_t N>
 auto transform_lazy(C &&curve, Affine<N> &&affine) noexcept -> AffineTransformedCurve<C, N>
 {
@@ -127,6 +141,7 @@ auto transform_lazy(C &&curve, Affine<N> &&affine) noexcept -> AffineTransformed
     return trans_curve;
 }
 
+/// @brief    An overload to specialize in case the curve type is `AffineTransformedCurve`.
 template <Curve C, size_t N>
 auto transform_lazy(AffineTransformedCurve<C, N> &&curve, Affine<N> &&affine) noexcept -> AffineTransformedCurve<C, N>
 {
@@ -134,6 +149,12 @@ auto transform_lazy(AffineTransformedCurve<C, N> &&curve, Affine<N> &&affine) no
     return std::move(curve);
 }
 
+/// @brief  Applies the given curve the specified transformation with immidiate evaluation. The given curve object is overwrited after this operation completed.
+/// @tparam C   an arbitrary curve type that conforms to the concept `Curve`
+/// @tparam N   dimension 
+/// @param curve    a curve to be applied the transformation 
+/// @param affine   an affine transformation object 
+/// @return 
 template <Curve C, size_t N>
 requires AffineTransformableCurve<C, N>
 inline auto transform(C& curve, const Affine<N> &affine) noexcept -> C& {
@@ -141,6 +162,12 @@ inline auto transform(C& curve, const Affine<N> &affine) noexcept -> C& {
     return curve;
 }
 
+/// @brief  Applies the given curve the specified transformation with immidiate evaluation. The resultant curve is newly created and returned.
+/// @tparam C   an arbitrary curve type that conforms to the concept `Curve`
+/// @tparam N   dimension 
+/// @param curve    a curve to be applied the transformation 
+/// @param affine   an affine transformation object 
+/// @return 
 template <Curve C, size_t N>
 requires AffineTransformableCurve<C, N>
 inline auto transformed(const C& curve, const Affine<N> &affine) noexcept -> C {
@@ -148,11 +175,17 @@ inline auto transformed(const C& curve, const Affine<N> &affine) noexcept -> C {
     return c;
 }
 
+/// @brief  An overload for the `SegmentView`.
 template <size_t N>
 inline auto transformed(const SegmentView<N>& seg_view, const Affine<N>& affine) noexcept -> Segment<N> {
     auto seg = seg_view.transformed(affine);
     return seg;
 }
+
+
+/* ######################### *\
+ * AffineTransformedCurve    *
+\* ######################### */
 
 template <Curve C, size_t N>
 inline AffineTransformedCurve<C, N>::AffineTransformedCurve(C &&curve, Affine<N> &&affine) noexcept:
