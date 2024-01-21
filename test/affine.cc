@@ -130,3 +130,23 @@ TEST(AffineTests, CompositeTest) {
     ASSERT_DOUBLE_EQ(1.0, p[0]);
     ASSERT_DOUBLE_EQ(1.0, p[1]);
 }
+
+
+TEST(AffineTransformedCurveTests, MultipleTransformationTest) {
+    auto curve = geomlib::Segment<2>(
+        lalib::VecD<2>({0.0, 0.0}),
+        lalib::VecD<2>({2.0, 0.0})
+    );
+    auto affine = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>::filled(0.0));
+
+	static_assert(geomlib::AffineTransformableCurve<decltype(curve), 2>);
+
+    auto transformed_curve = geomlib::transform_lazy(std::move(curve), std::move(affine));
+    transformed_curve = geomlib::transform_lazy(std::move(transformed_curve), std::move(affine));
+
+    EXPECT_DOUBLE_EQ(0.0, transformed_curve.point(0.0)[0]);
+    EXPECT_DOUBLE_EQ(0.0, transformed_curve.point(0.0)[1]);
+
+    EXPECT_NEAR(0.0, transformed_curve.point(1.0)[0], 1e-10);
+    EXPECT_NEAR(2.0, transformed_curve.point(1.0)[1], 1e-10); 
+}

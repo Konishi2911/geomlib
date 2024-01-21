@@ -9,7 +9,7 @@ services:
         source: './'
         target: '/home/geomlib'
     command: >
-      bash -c "cd /home/lalib && 
+      bash -c "cd /home/geomlib && 
       cmake -B ../build_gcc10 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DLALIB_BACKEND=Internal &&
       cmake -B ../build_gcc10_blas -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DLALIB_BACKEND=BLAS &&
       cmake -B ../build_gcc10_lapack -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DLALIB_BACKEND=LAPACK &&

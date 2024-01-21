@@ -3,9 +3,11 @@
 #define GEOMLIB_CURVE_POLYLINE_HPP
 
 #include "../../third_party/lalib/include/vec.hpp"
+#include "../affine/affine_core.hpp"
 #include "segment.hpp"
 #include <array>
 #include <vector>
+#include <optional>
 #include <cassert>
 
 namespace geomlib {
@@ -72,6 +74,10 @@ public:
     /// @param s 
     /// @return 
     auto tangent(double s) const noexcept -> VectorType;
+
+    auto transform(const Affine<N>& affine) noexcept -> Polyline<N>&;
+
+    auto transformed(const Affine<N>& affine) const noexcept -> Polyline<N>;
 
 private:
     std::vector<double> _cumul_length;
@@ -149,6 +155,24 @@ inline auto Polyline<N>::tangent(double s) const noexcept -> VectorType
     auto dp = this->dp(s);
     dp = dp / dp.norm2();
     return dp;
+}
+
+template <size_t N>
+inline auto Polyline<N>::transform(const Affine<N> &affine) noexcept -> Polyline &
+{
+    auto n = this->_nodes.size();
+    for (auto i = 0u; i < n; ++i) {
+        affine.transform(this->_nodes[i]);
+    }
+    this->_cumul_length = __calc_cumul_length(this->_nodes);
+    return *this;
+}
+
+template <size_t N>
+inline auto Polyline<N>::transformed(const Affine<N> &affine) const noexcept -> Polyline
+{
+    auto polyline = Polyline(*this).transform(affine);
+    return polyline;
 }
 
 template <size_t N>
