@@ -13,6 +13,7 @@ template<size_t N> struct Segment;
 template<size_t N>
 struct SegmentView {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 
@@ -52,6 +53,7 @@ private:
 template<size_t N>
 struct Segment {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 

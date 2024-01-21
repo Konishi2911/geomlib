@@ -12,6 +12,7 @@ namespace geomlib {
 template<size_t N>
 struct CubicSpline {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::SizedVec<double, N>;
     using VectorType = lalib::SizedVec<double, N>;
 

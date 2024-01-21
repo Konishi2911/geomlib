@@ -24,6 +24,7 @@ concept AffineTransformableCurve =
 template<Curve C, size_t N>
 struct AffineTransformedCurve {
 public:
+    static constexpr size_t DIM = N;
     using PointType = lalib::VecD<N>;
     using VectorType = lalib::VecD<N>;
 

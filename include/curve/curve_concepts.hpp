@@ -28,6 +28,13 @@ requires(const T& t) {
     { t.length(std::declval<double>()) } -> std::convertible_to<double>;
 };
 
+
+template<Curve C>
+constexpr auto Dim() noexcept -> size_t {
+    return C::DIM;
+}
+
+
 }
 
 #endif
