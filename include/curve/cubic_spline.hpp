@@ -125,6 +125,7 @@ inline auto CubicSpline<N>::deriv(double s) const noexcept -> VectorType
     auto local_s = this->__seg_local_pos(s, seg_id);
 
     auto p = this->__calc_seg_dp(seg_id, local_s);
+    lalib::scale(static_cast<double>(this->n_segments()), p);
     return p;
 }
 

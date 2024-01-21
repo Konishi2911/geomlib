@@ -124,7 +124,7 @@ inline auto SegmentView<N>::point(double s) const noexcept -> PointType
 template <size_t N>
 inline auto SegmentView<N>::deriv(double) const noexcept -> VectorType
 {
-    return (this->_pe - this->_ps) / this->length();
+    return (this->_pe.get() - this->_ps.get());
 }
 
 template <size_t N>

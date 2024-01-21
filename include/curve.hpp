@@ -7,8 +7,16 @@
 #include "curve/polyline.hpp"
 #include "curve/segment.hpp"
 #include "../third_party/mathlib/include/roots/secant.hpp"
+#include "../third_party/mathlib/include/integral/simpson.hpp"
 
 namespace geomlib {
+
+template<Curve C>
+auto approx_length(double ss, double es, const C& curve, size_t n) -> double {
+    auto integrator = mathlib::integral::Simpson();
+    auto len = integrator.integrate(ss, es, [&](double s){ return curve.deriv(s).norm2(); }, n);
+    return len;
+}
 
 /// @brief Creates a polyline object by sampling the point on the given curve with specified spacing function.
 /// @tparam F   the type of spacing function 
