@@ -11,7 +11,7 @@
 namespace geomlib {
 
 template<typename T, size_t N>
-concept AffineTransformable = 
+concept AffineTransformableCurve = 
     Curve<T> &&
     requires(T& t) {
         { t.transform(std::declval<const Affine<N>&>()) };
@@ -28,12 +28,18 @@ public:
     using VectorType = lalib::VecD<N>;
 
     AffineTransformedCurve(C&& curve, Affine<N>&& affine) noexcept;
+    AffineTransformedCurve(AffineTransformedCurve<C, N>&&) noexcept = default;
 
     auto operator()(double s) const noexcept -> PointType;
     auto point(double s) const noexcept -> PointType;
     auto tangent(double s) const noexcept -> VectorType;
 
-    auto native() const noexcept -> C requires AffineTransformable<C, N>;
+    auto transform(const Affine<N>& affine) noexcept -> AffineTransformedCurve<C, N>&;
+    auto transformed(const Affine<N>& affine) const noexcept -> AffineTransformedCurve<C, N>;
+
+    auto native() const noexcept -> C requires AffineTransformableCurve<C, N>;
+
+    auto operator=(AffineTransformedCurve<C, N>&& other) noexcept -> AffineTransformedCurve<C, N>&;
 
 private:
     C _curve;
@@ -122,14 +128,21 @@ auto transform_lazy(C &&curve, Affine<N> &&affine) noexcept -> AffineTransformed
 }
 
 template <Curve C, size_t N>
-requires AffineTransformable<C, N>
+auto transform_lazy(AffineTransformedCurve<C, N> &&curve, Affine<N> &&affine) noexcept -> AffineTransformedCurve<C, N>
+{
+    curve.transform(affine);
+    return std::move(curve);
+}
+
+template <Curve C, size_t N>
+requires AffineTransformableCurve<C, N>
 inline auto transform(C& curve, const Affine<N> &affine) noexcept -> C& {
     curve.transform(affine);
     return curve;
 }
 
 template <Curve C, size_t N>
-requires AffineTransformable<C, N>
+requires AffineTransformableCurve<C, N>
 inline auto transformed(const C& curve, const Affine<N> &affine) noexcept -> C {
     auto c = curve.transformed(affine);
     return c;
@@ -169,10 +182,32 @@ inline auto AffineTransformedCurve<C, N>::tangent(double s) const noexcept -> Ve
 }
 
 template <Curve C, size_t N>
-inline auto AffineTransformedCurve<C, N>::native() const noexcept -> C
-requires AffineTransformable<C, N>
+inline auto AffineTransformedCurve<C, N>::transform(const Affine<N> &affine) noexcept -> AffineTransformedCurve<C, N> &
 {
-    auto native = this->_curve.transformed(this->_affine)
+    this->_affine.composite(affine);
+    return *this;
+}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::transformed(const Affine<N> &affine) const noexcept -> AffineTransformedCurve<C, N>
+{
+    auto curve = AffineTransformedCurve(*this).transform(affine);
+    return curve;
+}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::operator=(AffineTransformedCurve<C, N> &&other) noexcept -> AffineTransformedCurve<C, N> &
+{
+    this->_curve = std::move(other._curve);
+    this->_affine = std::move(other._affine);
+    return *this;
+}
+
+template <Curve C, size_t N>
+inline auto AffineTransformedCurve<C, N>::native() const noexcept -> C
+requires AffineTransformableCurve<C, N>
+{
+    auto native = this->_curve.transformed(this->_affine);
 }
 }
 

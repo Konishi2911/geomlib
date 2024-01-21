@@ -1,4 +1,5 @@
 #include "../../include/curve/cubic_spline.hpp"
+#include "../../include/affine.hpp"
 #include <iostream>
 #include <numbers>
 #include <gtest/gtest.h>
@@ -126,4 +127,27 @@ TEST_F(SplineTests, DerivationTest) {
 
 	EXPECT_DOUBLE_EQ(0.5 / (sqrt(0.7*0.7 + 0.7*0.7) - sqrt(0.2*0.2 + 0.2*0.2)), curve.tangent(0.5)[0]);
 	EXPECT_DOUBLE_EQ(0.5 / (sqrt(0.7*0.7 + 0.7*0.7) - sqrt(0.2*0.2 + 0.2*0.2)), curve.tangent(0.5)[1]);
+}
+
+TEST_F(SplineTests, AffineTransformationTest) {
+	auto curve = geomlib::CubicSpline<2>({
+		lalib::VecD<2>({ 0.0, 0.0 }),
+		lalib::VecD<2>({ 0.2, 0.2 }),
+		lalib::VecD<2>({ 0.7, 0.7 }),
+		lalib::VecD<2>({ 1.0, 1.0 })
+	});
+	
+	auto affine = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>::filled(0.0));
+	auto half_scale = geomlib::Affine(lalib::MatD<2, 2>({
+		0.5, 0.0,
+		0.0, 0.5
+	}), lalib::VecD<2>::filled(0.0));
+
+	static_assert(geomlib::AffineTransformableCurve<decltype(curve), 2>);
+
+	curve.transform(affine);
+	ASSERT_NEAR(std::sqrt(2), curve.length(), 1e-10);
+
+	auto half_curve = curve.transformed(half_scale);
+	ASSERT_NEAR(std::sqrt(2) / 2.0, half_curve.length(), 1e-10);
 }

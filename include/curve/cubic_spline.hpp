@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "../../third_party/lalib/include/vec.hpp"
 #include "../../third_party/lalib/include/solver/tri_diag.hpp"
+#include "../affine/affine_core.hpp"
 
 namespace geomlib {
 
@@ -44,12 +45,19 @@ public:
     /// @return 
     auto tangent(double s) const noexcept -> VectorType;
 
+    auto transform(const Affine<N>& affine) noexcept -> CubicSpline<N>&;
+
+    auto transformed(const Affine<N>& affine) const noexcept -> CubicSpline<N>;
+
+
 private:
     std::vector<std::array<VectorType, 4>> _c;
     std::vector<double> _cumul_length;
 
     static auto __calc_coeffs(const std::vector<PointType>& nodes) noexcept 
         -> std::vector<std::array<VectorType, 4>>;
+
+    auto __calc_cumul_length(std::vector<double>&) const noexcept -> std::vector<double>&;
 
     auto __get_seg_id(double s) const noexcept -> size_t;
     auto __seg_length(size_t seg_id) const noexcept -> double;
@@ -67,30 +75,13 @@ inline CubicSpline<N>::CubicSpline(const std::vector<PointType> &nodes):
     _c(__calc_coeffs(nodes)), 
     _cumul_length({0.0})
 {
-    /// @todo Extract the code section below regarding Simpson's rule 
-    // Calculate lengths per segment (Simpson's Rule)
-    const auto n_div = 10u;
-    auto n_segs = nodes.size() - 1;
-
-    double total_len = 0.0;
-    for (auto i = 0u; i < n_segs; ++i) {
-        double len = 0.0;
-        for (auto k = 0u; k <= n_div - 2; k += 2) {
-            const auto dp0 = this->__calc_seg_dp(i, static_cast<double>(k) / n_div).norm2();
-            const auto dp1 = this->__calc_seg_dp(i, static_cast<double>(k + 1) / n_div).norm2();
-            const auto dp2 = this->__calc_seg_dp(i, static_cast<double>(k + 2) / n_div).norm2();
-
-            len += (dp0 + 4.0 * dp1 + dp2) / (3.0 * n_div);
-        }
-        total_len += len;
-        this->_cumul_length.emplace_back(total_len);
-    }
+    this->__calc_cumul_length(this->_cumul_length);
 }
 
 template <size_t N>
 inline auto CubicSpline<N>::n_segments() const noexcept -> size_t
 {
-    auto n = this->_cumul_length.size() - 1;
+    auto n = this->_c.size();
     return n;
 }
 
@@ -144,6 +135,26 @@ inline auto CubicSpline<N>::tangent(double s) const noexcept -> VectorType
     return p;
 }
 
+template <size_t N>
+inline auto CubicSpline<N>::transform(const Affine<N> &affine) noexcept -> CubicSpline<N> &
+{
+    auto n = this->_c.size();
+    for (auto i = 0u; i < n; ++i) {
+        affine.transform(this->_c[i][0]);
+        affine.transform(this->_c[i][1]);
+        affine.transform(this->_c[i][2]);
+        affine.transform(this->_c[i][3]);
+    }
+    this->__calc_cumul_length(this->_cumul_length);
+    return *this;
+}
+
+template <size_t N>
+inline auto CubicSpline<N>::transformed(const Affine<N> &affine) const noexcept -> CubicSpline<N>
+{
+    auto curve = CubicSpline(*this).transform(affine);
+    return curve;
+}
 
 // ==== Private Functions ==== //
 
@@ -211,6 +222,30 @@ inline auto CubicSpline<N>::__calc_coeffs(const std::vector<PointType> &nodes) n
     );
 
     return coeffs;
+}
+
+template <size_t N>
+inline auto CubicSpline<N>::__calc_cumul_length(std::vector<double>& cumul_length) const noexcept -> std::vector<double>&
+{
+    /// @todo Extract the code section below regarding Simpson's rule 
+    // Calculate lengths per segment (Simpson's Rule)
+    const auto n_div = 10u;
+    auto n_segs = this->_c.size();
+
+    double total_len = 0.0;
+    for (auto i = 0u; i < n_segs; ++i) {
+        double len = 0.0;
+        for (auto k = 0u; k <= n_div - 2; k += 2) {
+            const auto dp0 = this->__calc_seg_dp(i, static_cast<double>(k) / n_div).norm2();
+            const auto dp1 = this->__calc_seg_dp(i, static_cast<double>(k + 1) / n_div).norm2();
+            const auto dp2 = this->__calc_seg_dp(i, static_cast<double>(k + 2) / n_div).norm2();
+
+            len += (dp0 + 4.0 * dp1 + dp2) / (3.0 * n_div);
+        }
+        total_len += len;
+        cumul_length.emplace_back(total_len);
+    }
+    return cumul_length;
 }
 
 template <size_t N>
