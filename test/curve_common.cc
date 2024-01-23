@@ -56,3 +56,19 @@ TEST(CurveCommonTests, ApproxResamplingTest) {
         EXPECT_NEAR(seg.length(), 0.1, 1e-6);
     }
 }
+
+TEST(CurveCommonTests, NearestPointTest) {
+    auto plist = std::vector {
+        lalib::VecD<2>({ 0.0, 0.0 }),
+        lalib::VecD<2>({ 0.2, 0.0 }),
+        lalib::VecD<2>({ 0.5, 0.0 }),
+        lalib::VecD<2>({ 1.0, 0.0 }),
+    };
+    auto curve = geomlib::CubicSpline(std::move(plist));
+
+    auto exact_s = 0.3;
+    auto query = curve.point(exact_s);
+    auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+
+    EXPECT_NEAR(exact_s, found_s, 1e-6);
+}
