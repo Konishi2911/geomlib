@@ -8,6 +8,7 @@
 #include "curve/segment.hpp"
 #include "../third_party/mathlib/include/roots/secant.hpp"
 #include "../third_party/mathlib/include/integral/simpson.hpp"
+#include "../third_party/mathlib/include/nlp/nelder_mead.hpp"
 
 namespace geomlib {
 
@@ -77,6 +78,24 @@ auto sample(const C& curve, size_t n, F&& f) noexcept -> geomlib::Polyline<Dim<C
     }
     auto polyline = Polyline<N>(std::move(vec));
     return polyline;
+}
+
+
+/// @brief  Searches the nearest point from the given query, and returns the local position for it on the given curve.
+/// @tparam C the curve type
+/// @param curve    the curve searching the nearest point
+/// @param query    query
+/// @param tol      tolerance of the found nearest point
+/// @return 
+template<Curve C>
+auto nearest_on(const C& curve, const typename C::PointType& query, double tol) -> double {
+    auto solver = mathlib::nlp::NelderMead(tol);
+    auto cost = mathlib::nlp::NumericCostFunc([&](auto s){ 
+        s = std::clamp(s, 0.0, 1.0);
+        return (query - curve.point(s)).norm2(); 
+    }, 1e-5);
+    auto s = solver.solve(0.0, 1.0, std::move(cost), 100);
+    return std::clamp(s.sol(), 0.0, 1.0);
 }
 
 
