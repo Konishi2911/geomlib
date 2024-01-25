@@ -132,7 +132,7 @@ TEST(AffineTests, CompositeTest) {
 }
 
 
-TEST(AffineTransformedCurveTests, MultipleTransformationTest) {
+TEST(AffineTransformedCurveTests, MultipleLazyTransformationTest) {
     auto curve = geomlib::Segment<2>(
         lalib::VecD<2>({0.0, 0.0}),
         lalib::VecD<2>({2.0, 0.0})

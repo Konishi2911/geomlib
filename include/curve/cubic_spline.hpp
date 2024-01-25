@@ -143,9 +143,9 @@ inline auto CubicSpline<N>::transform(const Affine<N> &affine) noexcept -> Cubic
     auto n = this->_c.size();
     for (auto i = 0u; i < n; ++i) {
         affine.transform(this->_c[i][0]);
-        affine.transform(this->_c[i][1]);
-        affine.transform(this->_c[i][2]);
-        affine.transform(this->_c[i][3]);
+        lalib::mul(1.0, affine.mat(), this->_c[i][1], 0.0, this->_c[i][1]);
+        lalib::mul(1.0, affine.mat(), this->_c[i][2], 0.0, this->_c[i][2]);
+        lalib::mul(1.0, affine.mat(), this->_c[i][3], 0.0, this->_c[i][3]);
     }
     this->__calc_cumul_length(this->_cumul_length);
     return *this;

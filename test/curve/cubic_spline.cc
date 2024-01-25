@@ -137,7 +137,7 @@ TEST_F(SplineTests, AffineTransformationTest) {
 		lalib::VecD<2>({ 1.0, 1.0 })
 	});
 	
-	auto affine = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>::filled(0.0));
+	auto affine = geomlib::rotate2d(std::numbers::pi / 4.0, lalib::VecD<2>({ 1.0, 1.0 }));
 	auto half_scale = geomlib::Affine(lalib::MatD<2, 2>({
 		0.5, 0.0,
 		0.0, 0.5
