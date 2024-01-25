@@ -34,9 +34,9 @@ auto approx_length(double ss, double es, const C& curve, size_t n) -> double {
 /// @param f        the spacing function invocable with double-type parameter that range is [0, 1]. 
 /// @return 
 template<LengthMeasurableCurve C, std::invocable<double> F>
-auto sample(const C& curve, size_t n, F&& f) noexcept -> geomlib::Polyline<Dim<C>()> {
+auto sample(const C& curve, size_t n, F&& f, double tol) noexcept -> geomlib::Polyline<Dim<C>()> {
     constexpr size_t N = Dim<C>();
-    auto root_solver = mathlib::Secant(1e-8);
+    auto root_solver = mathlib::Secant(tol);
     auto tot_len = curve.length();
 
     auto vec = std::vector<lalib::VecD<N>>();
@@ -44,9 +44,10 @@ auto sample(const C& curve, size_t n, F&& f) noexcept -> geomlib::Polyline<Dim<C
     for (auto k = 0u; k < n; ++k) {
         auto s = static_cast<double>(k) / (n - 1);
         auto len = tot_len * f(s);
-        auto t = root_solver.find_root([&](double x){ return len - curve.length(x); }, 0.0, 1.0).value();
+        auto t = root_solver.find_root([&](double x){ return len - curve.length(x); }, 0.0, 1.0);
+        assert(t);
 
-        vec.emplace_back(curve.point(t));
+        vec.emplace_back(curve.point(t.value()));
     }
     auto polyline = Polyline<N>(std::move(vec));
     return polyline;
@@ -60,11 +61,11 @@ auto sample(const C& curve, size_t n, F&& f) noexcept -> geomlib::Polyline<Dim<C
 /// @param f        the spacing function invocable with double-type parameter that range is [0, 1]. 
 /// @return 
 template<Curve C, std::invocable<double> F>
-auto sample(const C& curve, size_t n, F&& f) noexcept -> geomlib::Polyline<Dim<C>()> {
+auto sample(const C& curve, size_t n, F&& f, double tol) noexcept -> geomlib::Polyline<Dim<C>()> {
     constexpr size_t N = Dim<C>();
 
     constexpr size_t n_len = 100;
-    auto root_solver = mathlib::Secant(1e-8);
+    auto root_solver = mathlib::Secant(tol);
     auto tot_len = approx_length(0.0, 1.0, curve, n_len);
 
     auto vec = std::vector<lalib::VecD<N>>();
@@ -72,9 +73,10 @@ auto sample(const C& curve, size_t n, F&& f) noexcept -> geomlib::Polyline<Dim<C
     for (auto k = 0u; k < n; ++k) {
         auto s = static_cast<double>(k) / (n - 1);
         auto len = tot_len * f(s);
-        auto t = root_solver.find_root([&](double x){ return len - approx_length(0.0, x, curve, n_len); }, 0.0, 1.0).value();
+        auto t = root_solver.find_root([&](double x){ return len - approx_length(0.0, x, curve, n_len); }, 0.0, 1.0);
+        assert(t);
 
-        vec.emplace_back(curve.point(t));
+        vec.emplace_back(curve.point(t.value()));
     }
     auto polyline = Polyline<N>(std::move(vec));
     return polyline;

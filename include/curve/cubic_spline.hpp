@@ -74,7 +74,7 @@ private:
 template <size_t N>
 inline CubicSpline<N>::CubicSpline(const std::vector<PointType> &nodes):
     _c(__calc_coeffs(nodes)), 
-    _cumul_length({0.0})
+    _cumul_length(nodes.size(), 0.0)
 {
     this->__calc_cumul_length(this->_cumul_length);
 }
@@ -245,7 +245,7 @@ inline auto CubicSpline<N>::__calc_cumul_length(std::vector<double>& cumul_lengt
             len += (dp0 + 4.0 * dp1 + dp2) / (3.0 * n_div);
         }
         total_len += len;
-        cumul_length.emplace_back(total_len);
+        cumul_length[i + 1] = total_len;
     }
     return cumul_length;
 }

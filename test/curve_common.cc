@@ -32,7 +32,7 @@ TEST(CurveCommonTests, ResamplingTest) {
         lalib::VecD<2>({ 1.0, 0.0 }),
     };
     auto spline = geomlib::CubicSpline<2>(plist);
-    auto sampled = geomlib::sample(spline, 11, std::identity());
+    auto sampled = geomlib::sample(spline, 11, std::identity(), 1e-6);
 
     for (auto&& seg: sampled) {
         EXPECT_NEAR(seg.length(), 0.1, 1e-6);
@@ -50,7 +50,7 @@ TEST(CurveCommonTests, ApproxResamplingTest) {
     auto affine = geomlib::rotate2d(0.0, lalib::VecD<2>::filled(0.0));
     auto curve = geomlib::transform_lazy(std::move(spline), std::move(affine));
 
-    auto sampled = geomlib::sample(curve, 11, std::identity());
+    auto sampled = geomlib::sample(curve, 11, std::identity(), 1e-6);
 
     for (auto&& seg: sampled) {
         EXPECT_NEAR(seg.length(), 0.1, 1e-6);
@@ -59,23 +59,41 @@ TEST(CurveCommonTests, ApproxResamplingTest) {
 
 TEST(CurveCommonTests, NearestPointTest) {
     auto plist = std::vector {
-        lalib::VecD<2>({ 0.0, 0.0 }),
-        lalib::VecD<2>({ 0.2, 0.0 }),
-        lalib::VecD<2>({ 0.5, 0.0 }),
         lalib::VecD<2>({ 1.0, 0.0 }),
+        lalib::VecD<2>({ 0.8, -0.1 }),
+        lalib::VecD<2>({ 0.2, -0.1 }),
+        lalib::VecD<2>({ 0.0, 0.0 }),
+        lalib::VecD<2>({ 0.2, 0.1 }),
+        lalib::VecD<2>({ 0.8, 0.1 }),
+        lalib::VecD<2>({ 1.0, 0.01 })
     };
     auto curve = geomlib::CubicSpline(std::move(plist));
 
-    auto exact_s = 0.3;
-    auto query = curve.point(exact_s);
-    auto found_s = geomlib::nearest_on(curve, query, 1e-6);
-    EXPECT_NEAR(exact_s, found_s, 1e-6);
+    {
+        auto exact_s = 0.7;
+        auto query = curve.point(exact_s);
+        auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+        EXPECT_NEAR(exact_s, found_s, 1e-6);
+    }
 
-    auto query_edge1 = lalib::VecD<2>({ -1.0, 1.0 });
-    auto found_s_edge1 = geomlib::nearest_on(curve, query_edge1, 1e-6);
-    EXPECT_NEAR(0.0, found_s_edge1, 1e-6);
+    {
+        auto exact_s = 0.0;
+        auto query = curve.point(exact_s);
+        auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+        EXPECT_NEAR(exact_s, found_s, 1e-6);
+    }
 
-    auto query_edge2 = lalib::VecD<2>({ 2.0, 1.0 });
-    auto found_s_edge2 = geomlib::nearest_on(curve, query_edge2, 1e-6);
-    EXPECT_NEAR(1.0, found_s_edge2, 1e-6);
+    {
+        auto exact_s = 1.0;
+        auto query = curve.point(exact_s);
+        auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+        EXPECT_NEAR(exact_s, found_s, 1e-6);
+    }
+
+    {
+        // Off the curve
+        auto query_edge2 = lalib::VecD<2>({ 2.0, 0.01 });
+        auto found_s_edge2 = geomlib::nearest_on(curve, query_edge2, 1e-6);
+        EXPECT_NEAR(1.0, found_s_edge2, 1e-6);
+    }
 }
