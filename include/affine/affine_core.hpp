@@ -16,6 +16,12 @@ public:
     Affine(lalib::MatD<N, N>&& c, const lalib::VecD<N>& b) noexcept;
     Affine(lalib::MatD<N, N>&& c, lalib::VecD<N>&& b) noexcept;
 
+    /// @brief Returns the matrix associated to the transformation except for the translation.
+    auto mat() const noexcept -> const lalib::MatD<N, N>&;
+
+    /// @brief Returns the vector associated to the translation
+    auto vec() const noexcept -> const lalib::VecD<N>&;
+
     auto transform(const lalib::VecD<N>& vec, lalib::VecD<N>& rslt) const noexcept -> lalib::VecD<N>&;
     auto transform(lalib::VecD<N>& vec) const noexcept -> lalib::VecD<N>&;
     auto transformed(const lalib::VecD<N>& vec) const noexcept -> lalib::VecD<N>;
@@ -55,7 +61,20 @@ inline Affine<N>::Affine(lalib::MatD<N, N> &&c, lalib::VecD<N> &&b) noexcept:
 { }
 
 template <size_t N>
-inline auto Affine<N>::transform(const lalib::VecD<N>& vec, lalib::VecD<N>& rslt) const noexcept -> lalib::VecD<N>& {
+inline auto Affine<N>::mat() const noexcept -> const lalib::MatD<N, N> &
+{
+    return this->_c;
+}
+
+template <size_t N>
+inline auto Affine<N>::vec() const noexcept -> const lalib::VecD<N> &
+{
+    return this->_b;
+}
+
+template <size_t N>
+inline auto Affine<N>::transform(const lalib::VecD<N> &vec, lalib::VecD<N> &rslt) const noexcept -> lalib::VecD<N> &
+{
     lalib::mul(1.0, this->_c, vec, 0.0, rslt);
     lalib::add(rslt, this->_b, rslt);
     return rslt;
