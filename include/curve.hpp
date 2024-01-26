@@ -93,10 +93,16 @@ template<Curve C>
 auto nearest_on(const C& curve, const typename C::PointType& query, double tol) -> double {
     auto solver = mathlib::nlp::NelderMead(tol);
     auto cost = mathlib::nlp::NumericCostFunc([&](auto s){ 
+        double cost = 0.0;
+        if (s < 0.0 || s > 1.0) {
+            cost = std::abs(s);
+        }
         s = std::clamp(s, 0.0, 1.0);
-        return (query - curve.point(s)).norm2(); 
+        cost += (query - curve.point(s)).norm2();
+        return cost;
     }, 1e-5);
     auto s = solver.solve(0.0, 1.0, std::move(cost), 100);
+    assert(s);
     return std::clamp(s.sol(), 0.0, 1.0);
 }
 
