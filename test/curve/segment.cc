@@ -44,6 +44,20 @@ TEST(SegmentTests, TangentTest) {
     EXPECT_DOUBLE_EQ(-1.0/std::sqrt(14.0), seg.tangent(0.0)[2]);
 }
 
+TEST(SegmentTests, DistanceTest) {
+    auto sp = lalib::VecD<2>({0.0, 0.0});
+    auto ep = lalib::VecD<2>({1.0, 0.0});
+    auto seg = geomlib::Segment(sp, ep);
+
+    auto q1 = lalib::VecD<2>({0.5, 1.0});
+    auto q2 = lalib::VecD<2>({-1.0, 0.0});
+    auto q3 = lalib::VecD<2>({2.0, 1.0});
+
+    EXPECT_DOUBLE_EQ(1.0, seg.distance(q1));
+    EXPECT_DOUBLE_EQ(1.0, seg.distance(q2));
+    EXPECT_DOUBLE_EQ(std::sqrt(2.0), seg.distance(q3));
+}
+
 TEST(SegmentTests, AffineTransformationTest) {
     auto sp = lalib::VecD<3>({0.0, 1.0, 2.0});
     auto ep = lalib::VecD<3>({2.0, 4.0, 1.0});

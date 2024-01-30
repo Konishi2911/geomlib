@@ -48,6 +48,10 @@ public:
     /// @param affine 
     auto transformed(const Affine<N>& affine) const noexcept -> Segment<N>;
 
+    /// @brief calculates the minimum distance to the query point
+    /// @param query    query point
+    auto distance(const VectorType& query) const noexcept -> double;
+
 private:
     std::reference_wrapper<const PointType> _ps;
     std::reference_wrapper<const PointType> _pe;
@@ -94,6 +98,11 @@ public:
     /// @brief transforms itself with given affine transformation object.
     /// @param affine 
     auto transformed(const Affine<N>& affine) const noexcept -> Segment<N>;
+    
+
+    /// @brief calculates the minimum distance to the query point
+    /// @param query    query point
+    auto distance(const VectorType& query) const noexcept -> double;
 
 private:
     std::array<lalib::SizedVec<double, N>, 2> _p;
@@ -156,6 +165,25 @@ inline auto SegmentView<N>::transformed(const Affine<N> &affine) const noexcept 
 }
 
 template <size_t N>
+inline auto SegmentView<N>::distance(const VectorType &query) const noexcept -> double
+{
+    auto v = this->tangent(0.0);
+    auto t = (query - this->_ps.get()).dot(v);
+    if (t > 1) { 
+        auto d = (query - this->_pe.get()).norm2();
+        return d;
+    } 
+    else if (t < 0) {
+        auto d = (query - this->_ps.get()).norm2();
+        return d;
+    }
+    else {
+        auto d = ((query - this->_ps.get()) - t * v).norm2();
+        return d;
+    }
+}
+
+template <size_t N>
 inline Segment<N>::Segment(const PointType &s, const PointType &e) noexcept:
     _p({s, e}), _segment_view(_p[0], _p[1])
 { }
@@ -210,6 +238,11 @@ inline auto Segment<N>::transformed(const Affine<N> &affine) const noexcept -> S
 {
     auto seg = Segment(*this).transform(affine);
     return seg;
+}
+template <size_t N>
+inline auto Segment<N>::distance(const VectorType &query) const noexcept -> double
+{
+    return this->_segment_view.distance(query);
 }
 }
 
