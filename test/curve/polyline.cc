@@ -34,6 +34,24 @@ TEST(PolylineTests, LengthTest) {
 	ASSERT_NEAR(std::sqrt(2), curve.length(), 1e-10);
 }
 
+TEST(PolylineTests, InterLengthTest) {
+	auto curve = geomlib::Polyline<2>({
+		lalib::VecD<2>({ 0.0, 0.0 }),
+		lalib::VecD<2>({ 0.0, 0.0 }),
+		lalib::VecD<2>({ 0.2, 0.0 }),
+		lalib::VecD<2>({ 0.2, 0.0 }),
+		lalib::VecD<2>({ 0.6, 0.0 }),
+		lalib::VecD<2>({ 0.8, 0.0 }),
+		lalib::VecD<2>({ 1.0, 0.0 }),
+		lalib::VecD<2>({ 1.0, 0.0 })
+	});
+	
+	EXPECT_NEAR(0.0, curve.length(0.0), 1e-10);
+	EXPECT_NEAR(0.1, curve.length(0.1), 1e-10);
+	EXPECT_NEAR(0.7, curve.length(0.7), 1e-10);
+	EXPECT_NEAR(1.0, curve.length(1.0), 1e-10);
+}
+
 TEST(PolylineTests, NumOfSegmentTest) {
 	auto curve = geomlib::Polyline<2>({
 		lalib::VecD<2>({ 0.0, 0.0 }),
