@@ -148,10 +148,13 @@ inline auto Polyline<N>::length() const noexcept -> double
 template <size_t N>
 inline auto Polyline<N>::length(double s) const noexcept -> double
 {
+    if (s <= 0) { return 0; }
+    if (s >= 1) { return this->_cumul_length.back(); }
     auto segid = this->__get_seg_id(s);
     auto length = this->_cumul_length[segid];
     auto seg_s = this->__calc_local_seg_pos(s, segid);
     length += seg_s * (this->__calc_seg_len(segid));
+    assert(!std::isnan(length));
     return length;
 }
 

@@ -101,7 +101,7 @@ auto nearest_on(const C& curve, const typename C::PointType& query, double tol) 
         cost += (query - curve.point(s)).norm2();
         return cost;
     }, 1e-5);
-    auto s = solver.solve(0.0, 1.0, std::move(cost), 100);
+    auto s = solver.solve(0.2, 0.8, std::move(cost), 100);
     assert(s);
     return std::clamp(s.sol(), 0.0, 1.0);
 }
