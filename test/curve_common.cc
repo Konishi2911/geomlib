@@ -72,28 +72,28 @@ TEST(CurveCommonTests, NearestPointTest) {
     {
         auto exact_s = 0.7;
         auto query = curve.point(exact_s);
-        auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+        auto found_s = geomlib::nearest_on(curve, query, 10);
         EXPECT_NEAR(exact_s, found_s, 1e-6);
     }
 
     {
         auto exact_s = 0.0;
         auto query = curve.point(exact_s);
-        auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+        auto found_s = geomlib::nearest_on(curve, query, 10);
         EXPECT_NEAR(exact_s, found_s, 1e-6);
     }
 
     {
         auto exact_s = 1.0;
         auto query = curve.point(exact_s);
-        auto found_s = geomlib::nearest_on(curve, query, 1e-6);
+        auto found_s = geomlib::nearest_on(curve, query, 10);
         EXPECT_NEAR(exact_s, found_s, 1e-6);
     }
 
     {
         // Off the curve
         auto query_edge2 = lalib::VecD<2>({ 2.0, 0.01 });
-        auto found_s_edge2 = geomlib::nearest_on(curve, query_edge2, 1e-6);
+        auto found_s_edge2 = geomlib::nearest_on(curve, query_edge2, 10);
         EXPECT_NEAR(1.0, found_s_edge2, 1e-6);
     }
 }

@@ -84,24 +84,41 @@ auto sample(const C& curve, size_t n, F&& f, double tol) noexcept -> geomlib::Po
 
 
 /// @brief  Searches the nearest point from the given query, and returns the local position for it on the given curve.
-/// @tparam C the curve type
+/// @tparam C       the curve type
 /// @param curve    the curve searching the nearest point
 /// @param query    query
-/// @param tol      tolerance of the found nearest point
+/// @param nsegs    the number of segments using at the first step of nearest point search.
 /// @return 
 template<Curve C>
-auto nearest_on(const C& curve, const typename C::PointType& query, double tol) -> double {
-    auto solver = mathlib::nlp::NelderMead(tol);
-    auto cost = mathlib::nlp::NumericCostFunc([&](auto s){ 
+auto nearest_on(const C& curve, const typename C::PointType& query, size_t nsegs) -> double {
+    size_t nearest_segid = 0;
+    double min_distance = std::numeric_limits<double>::infinity();
+    for (auto i = 0u; i < nsegs; ++i) {
+        auto sb = static_cast<double>(i) / nsegs;
+        auto se = static_cast<double>(i + 1) / nsegs;
+        auto seg = geomlib::Segment(curve.point(sb), curve.point(se));
+
+        auto d = seg.distance(query);
+        if (d < min_distance) {
+            nearest_segid = i;
+            min_distance = d;
+        }
+    }
+    
+    auto sb = static_cast<double>(nearest_segid) / nsegs;
+    auto se = static_cast<double>(nearest_segid + 1) / nsegs;
+    auto cost = [&](auto s){ 
         double cost = 0.0;
-        if (s < 0.0 || s > 1.0) {
+        if (s < sb || s > se) {
             cost = std::abs(s);
         }
-        s = std::clamp(s, 0.0, 1.0);
+        s = std::clamp(s, sb, se);
         cost += (query - curve.point(s)).norm2();
         return cost;
-    }, 1e-5);
-    auto s = solver.solve(0.0, 1.0, std::move(cost), 100);
+    };
+
+    auto solver = mathlib::nlp::NelderMead(1e-6);
+    auto s = solver.solve(sb, se, std::move(cost), 100);
     assert(s);
     return std::clamp(s.sol(), 0.0, 1.0);
 }
