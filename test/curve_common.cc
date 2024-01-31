@@ -69,27 +69,12 @@ TEST(CurveCommonTests, NearestPointTest) {
     };
     auto curve = geomlib::CubicSpline(std::move(plist));
 
-    {
-        auto exact_s = 0.7;
+    for (auto i = 0u; i <= 100; ++i) {
+        auto exact_s = static_cast<double>(i) / 100;
         auto query = curve.point(exact_s);
         auto found_s = geomlib::nearest_on(curve, query, 10);
         EXPECT_NEAR(exact_s, found_s, 1e-6);
     }
-
-    {
-        auto exact_s = 0.0;
-        auto query = curve.point(exact_s);
-        auto found_s = geomlib::nearest_on(curve, query, 10);
-        EXPECT_NEAR(exact_s, found_s, 1e-6);
-    }
-
-    {
-        auto exact_s = 1.0;
-        auto query = curve.point(exact_s);
-        auto found_s = geomlib::nearest_on(curve, query, 10);
-        EXPECT_NEAR(exact_s, found_s, 1e-6);
-    }
-
     {
         // Off the curve
         auto query_edge2 = lalib::VecD<2>({ 2.0, 0.01 });
