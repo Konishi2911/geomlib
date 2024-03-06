@@ -1,5 +1,5 @@
-#include "../../include/curve/cubic_spline.hpp"
-#include "../../include/affine.hpp"
+#include "geomlib/curve/cubic_spline.hpp"
+#include "geomlib/affine.hpp"
 #include <iostream>
 #include <numbers>
 #include <gtest/gtest.h>

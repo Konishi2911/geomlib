@@ -2,9 +2,9 @@
 #ifndef GEOMLIB_CURVE_POLYLINE_HPP
 #define GEOMLIB_CURVE_POLYLINE_HPP
 
-#include "../../third_party/lalib/include/vec.hpp"
-#include "../affine/affine_core.hpp"
-#include "segment.hpp"
+#include "lalib/vec.hpp"
+#include "geomlib/affine/affine_core.hpp"
+#include "geomlib/curve/segment.hpp"
 #include <array>
 #include <vector>
 #include <optional>

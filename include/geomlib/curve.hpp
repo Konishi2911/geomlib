@@ -2,13 +2,13 @@
 #ifndef GEOMLIB_CURVE_HPP
 #define GEOMLIB_CURVE_HPP
 
-#include "curve/curve_concepts.hpp"
-#include "curve/cubic_spline.hpp"
-#include "curve/polyline.hpp"
-#include "curve/segment.hpp"
-#include "../third_party/mathlib/include/roots/secant.hpp"
-#include "../third_party/mathlib/include/integral/simpson.hpp"
-#include "../third_party/mathlib/include/nlp/nelder_mead.hpp"
+#include "geomlib/curve/curve_concepts.hpp"
+#include "geomlib/curve/cubic_spline.hpp"
+#include "geomlib/curve/polyline.hpp"
+#include "geomlib/curve/segment.hpp"
+#include "mathlib/roots/secant.hpp"
+#include "mathlib/integral/simpson.hpp"
+#include "mathlib/nlp/nelder_mead.hpp"
 
 namespace geomlib {
 

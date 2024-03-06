@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <numbers>
-#include "../include/affine.hpp"
-#include "../include/curve/segment.hpp"
+#include "geomlib/affine.hpp"
+#include "geomlib/curve/segment.hpp"
 
 TEST(AffineTests, Rotation2DTest) {
     const auto affine = geomlib::rotate2d(std::numbers::pi / 6.0, lalib::VecD<2>::filled(0.0));
