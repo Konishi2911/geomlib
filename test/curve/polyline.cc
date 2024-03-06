@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <ranges>
 #include <numbers>
-#include "../../include/curve/polyline.hpp"
-#include "../../include/affine.hpp"
+#include "geomlib/curve/polyline.hpp"
+#include "geomlib/affine.hpp"
 
 static_assert(std::input_iterator<geomlib::Polyline<2>::SegmentViewIterator>);
 static_assert(std::sentinel_for<geomlib::Polyline<2>::SegmentViewIterator, geomlib::Polyline<2>::SegmentViewIterator>);

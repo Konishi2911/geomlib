@@ -3,8 +3,8 @@
 #define GEOMLIB_AFFINE_CORE_HPP
 
 #include <cstdint>
-#include "../../third_party/lalib/include/vec.hpp"
-#include "../../third_party/lalib/include/mat.hpp"
+#include "lalib/vec.hpp"
+#include "lalib/mat.hpp"
 
 namespace geomlib {
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <functional>
-#include "../include/curve.hpp"
-#include "../include/affine.hpp"
+#include "geomlib/curve.hpp"
+#include "geomlib/affine.hpp"
 
 TEST(CurveCommonTests, ApproxLengthTest) {
 	auto seg = geomlib::Segment<2>(lalib::VecD<2>({ 0.0, 0.0 }), lalib::VecD<2>({ 1.0, 1.0 }));

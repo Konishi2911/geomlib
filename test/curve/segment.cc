@@ -1,4 +1,4 @@
-#include "../../include/curve/segment.hpp"
+#include "geomlib/curve/segment.hpp"
 #include <gtest/gtest.h>
 
 TEST(SegmentTests, LengthTest) {

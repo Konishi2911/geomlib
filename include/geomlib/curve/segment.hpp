@@ -3,8 +3,8 @@
 #define GEOMLIB_SEGMENT_HPP
 
 #include <array>
-#include "../../third_party/lalib/include/vec.hpp"
-#include "../affine/affine_core.hpp"
+#include "lalib/vec.hpp"
+#include "geomlib/affine/affine_core.hpp"
 
 namespace geomlib {
 

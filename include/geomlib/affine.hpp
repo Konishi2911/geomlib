@@ -3,10 +3,10 @@
 #define GEOMLIB_AFFINE_HPP
 
 #include <cstdint>
-#include "../third_party/lalib/include/vec.hpp"
-#include "../third_party/lalib/include/mat.hpp"
-#include "affine/affine_core.hpp"
-#include "curve.hpp"
+#include "lalib/vec.hpp"
+#include "lalib/mat.hpp"
+#include "geomlib/affine/affine_core.hpp"
+#include "geomlib/curve.hpp"
 
 namespace geomlib {
 

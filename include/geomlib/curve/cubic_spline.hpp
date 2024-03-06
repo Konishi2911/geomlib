@@ -3,9 +3,9 @@
 #define GEOMLIB_CUBIC_SPLINE_HPP
 
 #include <algorithm>
-#include "../../third_party/lalib/include/vec.hpp"
-#include "../../third_party/lalib/include/solver/tri_diag.hpp"
-#include "../affine/affine_core.hpp"
+#include "lalib/vec.hpp"
+#include "lalib/solver/tri_diag.hpp"
+#include "geomlib/affine/affine_core.hpp"
 
 namespace geomlib {
 

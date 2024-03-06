@@ -2,6 +2,7 @@
 #ifndef GEOMLIB_CURVE_CONCEPTS_HPP
 #define GEOMLIB_CURVE_CONCEPTS_HPP
 
+#include <cstddef>
 #include <type_traits>
 #include <concepts>
 
