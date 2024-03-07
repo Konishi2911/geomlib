@@ -57,6 +57,8 @@ public:
     auto begin() const noexcept -> SegmentViewIterator;
     auto end() const noexcept -> SegmentViewIterator;
 
+    auto nodes() const noexcept -> const std::vector<PointType>&;
+
     auto operator()(double s) const noexcept -> PointType;
 
     /// @brief  Returns the point on the segment specified by the given local position `s`
@@ -122,6 +124,12 @@ template <size_t N>
 inline auto Polyline<N>::end() const noexcept -> SegmentViewIterator
 {
     return SegmentViewIterator::sentinel(this->_nodes);
+}
+
+template <size_t N>
+inline auto Polyline<N>::nodes() const noexcept -> const std::vector<PointType>&
+{
+    return this->_nodes;
 }
 
 template <size_t N>
