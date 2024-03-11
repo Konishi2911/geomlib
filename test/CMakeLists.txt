@@ -17,3 +17,10 @@ gtest_discover_tests(geomlib_affine_test)
 add_executable(geomlib_curve_common_test ./curve_common.cc)
 target_link_libraries(geomlib_curve_common_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
 gtest_discover_tests(geomlib_curve_common_test)
+
+
+## Surfaces
+
+add_executable(geomlib_polygon_test surface/polygon.cc)
+target_link_libraries(geomlib_polygon_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
+gtest_discover_tests(geomlib_polygon_test)
