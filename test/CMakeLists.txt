@@ -24,3 +24,7 @@ gtest_discover_tests(geomlib_curve_common_test)
 add_executable(geomlib_polygon_test surface/polygon.cc)
 target_link_libraries(geomlib_polygon_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
 gtest_discover_tests(geomlib_polygon_test)
+
+add_executable(geomlib_polygon_mesh_test surface/polygon_mesh.cc)
+target_link_libraries(geomlib_polygon_mesh_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
+gtest_discover_tests(geomlib_polygon_mesh_test)
