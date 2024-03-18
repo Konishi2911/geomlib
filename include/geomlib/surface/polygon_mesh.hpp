@@ -1,4 +1,6 @@
 #pragma once
+#ifndef GEOMLIB_SURFACE_POLYGON_MESH_HPP
+#define GEOMLIB_SURFACE_POLYGON_MESH_HPP
 
 #include "geomlib/surface/polygon.hpp"
 #include "geomlib/surface/surface_concepts.hpp"
@@ -73,3 +75,5 @@ inline auto PolygonMesh::__calc_area(const std::vector<PolygonView>& faces) noex
 }
 
 }
+
+#endif

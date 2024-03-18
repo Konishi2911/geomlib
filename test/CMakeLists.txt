@@ -28,3 +28,10 @@ gtest_discover_tests(geomlib_polygon_test)
 add_executable(geomlib_polygon_mesh_test surface/polygon_mesh.cc)
 target_link_libraries(geomlib_polygon_mesh_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
 gtest_discover_tests(geomlib_polygon_mesh_test)
+
+
+## IOs
+
+add_executable(geomlib_binary_test io/binary_utility.cc)
+target_link_libraries(geomlib_binary_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
+gtest_discover_tests(geomlib_binary_test)
