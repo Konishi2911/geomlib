@@ -170,7 +170,6 @@ template <size_t N>
 inline auto Polyline<N>::deriv(double s) const noexcept -> VectorType
 {
     auto sid = this->__get_seg_id(s);
-    auto seg_s = this->__calc_local_seg_pos(s, sid);
     auto ds = this->__calc_seg_len(sid) / this->length();
     auto dp = (this->_nodes[sid + 1] - this->_nodes[sid]) / ds;
     return dp;
