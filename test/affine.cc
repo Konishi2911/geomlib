@@ -103,6 +103,29 @@ TEST(AffineTests, Rotation3DZTest) {
     ASSERT_DOUBLE_EQ(1.0, ez[2]);
 }
 
+TEST(AffineTEsts, Rotation3DTest) {
+    auto ex = lalib::VecD<3>({ 1.0, 0.0, 0.0 });
+    auto ey = lalib::VecD<3>({ 0.0, 1.0, 0.0 });
+    auto ez = lalib::VecD<3>({ 0.0, 0.0, 1.0 });
+    const auto affine = geomlib::rotate3d(std::numbers::pi / 6.0, ez, lalib::VecD<3>::filled(0.0));
+    
+    affine.transform(ex, ex);
+    affine.transform(ey, ey);
+    affine.transform(ez, ez);
+
+    ASSERT_DOUBLE_EQ(std::sqrt(3) / 2.0 , ex[0]);
+    ASSERT_DOUBLE_EQ(0.5 , ex[1]);
+    ASSERT_DOUBLE_EQ(0.0 , ex[2]);
+
+    ASSERT_DOUBLE_EQ(-0.5 , ey[0]);
+    ASSERT_DOUBLE_EQ(std::sqrt(3) / 2.0 , ey[1]);
+    ASSERT_DOUBLE_EQ(0.0 , ey[2]);
+
+    ASSERT_DOUBLE_EQ(0.0, ez[0]);
+    ASSERT_DOUBLE_EQ(0.0, ez[1]);
+    ASSERT_DOUBLE_EQ(1.0, ez[2]);
+}
+
 TEST(AffineTests, SegmentRotationTest) {
     auto seg = geomlib::Segment(
         lalib::VecD<2>({ 0.0, 0.0 }),
