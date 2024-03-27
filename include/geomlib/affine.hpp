@@ -87,6 +87,22 @@ inline auto rotate<3, 2>(double angle) noexcept -> Affine<3> {
     return Affine<3>(std::move(mat), lalib::VecD<3>::filled(0.0));
 }
 
+/// @brief  Creates a 3D-affine transformation object representing a rigid rotation around the given axis
+/// @param angle    rotating angle (the direction follows right-hand rule)
+/// @param n        rotation axis, which must be unit vector.
+inline auto rotate3d(double theta, const lalib::VecD<3>& n, const lalib::VecD<3>& pivot) noexcept -> Affine<3> {
+    auto s = std::sin(theta);
+    auto c = std::cos(theta);
+    auto cc = 1.0 - std::cos(theta);
+    auto mat = lalib::MatD<3, 3>({
+        n[0]*n[0] * cc + c, n[0]*n[1] * cc - n[2] * s, n[0]*n[2] * cc + n[1] * s,
+        n[0]*n[1] * cc + n[2] * s, n[1]*n[1] * cc + c, n[1]*n[2] * cc - n[0] * s,
+        n[0]*n[2] * cc - n[1] * s, n[1]*n[2] * cc + n[0] * s, n[2]*n[2] * cc + c
+    });
+    auto p = pivot - mat * pivot;
+    return Affine<3>(std::move(mat), std::move(p));
+}
+
 /// @brief  Creates a 2D-affine transformation object representing the rigid rotation.
 /// @param angle    rotating angle (CCW is positive)
 /// @param pivot    pivot position of the roattion 
