@@ -6,6 +6,10 @@ add_executable(geomlib_cubic_spline_test curve/cubic_spline.cc)
 target_link_libraries(geomlib_cubic_spline_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
 gtest_discover_tests(geomlib_cubic_spline_test)
 
+add_executable(geomlib_polynomial_curve_test curve/polynomial.cc)
+target_link_libraries(geomlib_polynomial_curve_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
+gtest_discover_tests(geomlib_polynomial_curve_test)
+
 add_executable(geomlib_polyline_test curve/polyline.cc)
 target_link_libraries(geomlib_polyline_test PRIVATE ${BLAS_LIBRARIES} ${OpenMP_CXX_LIBRARIES} GTest::GTest GTest::Main)
 gtest_discover_tests(geomlib_polyline_test)
