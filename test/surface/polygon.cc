@@ -117,6 +117,23 @@ TEST_F(PolygonTests, AreaTest) {
     EXPECT_DOUBLE_EQ(2.0, penta->area());
 }
 
+TEST_F(PolygonTests, FootTest) {
+    auto query = lalib::VecD<3>({ 1.0, 0.5, 0.5 });
+    auto foot = rect->foot(query);
+
+    EXPECT_DOUBLE_EQ(0.0, foot[0]);
+    EXPECT_DOUBLE_EQ(0.5, foot[1]);
+    EXPECT_DOUBLE_EQ(0.5, foot[2]);
+}
+
+TEST_F(PolygonTests, InclusionTest) {
+    auto query1 = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
+    auto query2 = lalib::VecD<3>({ 0.0, 2.0, 0.5 });
+
+    EXPECT_TRUE(rect->check_inclusion(query1));
+    EXPECT_FALSE(rect->check_inclusion(query2));
+}
+
 TEST_F(PolygonViewTests, PointTest) {
     auto rand = std::mt19937(std::random_device()());
     auto rng = std::uniform_real_distribution<double>(0.0, 1.0);
@@ -160,4 +177,21 @@ TEST_F(PolygonViewTests, AreaTest) {
     EXPECT_DOUBLE_EQ(1.0, tri->area());
     EXPECT_DOUBLE_EQ(1.0, rect->area());
     EXPECT_DOUBLE_EQ(2.0, penta->area());
+}
+
+TEST_F(PolygonViewTests, FootTest) {
+    auto query = lalib::VecD<3>({ 1.0, 0.5, 0.5 });
+    auto foot = rect->foot(query);
+
+    EXPECT_DOUBLE_EQ(0.0, foot[0]);
+    EXPECT_DOUBLE_EQ(0.5, foot[1]);
+    EXPECT_DOUBLE_EQ(0.5, foot[2]);
+}
+
+TEST_F(PolygonViewTests, InclusionTest) {
+    auto query1 = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
+    auto query2 = lalib::VecD<3>({ 0.0, 2.0, 0.5 });
+
+    EXPECT_TRUE(rect->check_inclusion(query1));
+    EXPECT_FALSE(rect->check_inclusion(query2));
 }
