@@ -27,6 +27,9 @@ struct Polygon {
     /// @brief Calculates a foot of a perpendicular
     auto foot(const lalib::VecD<3>& query) const noexcept -> lalib::VecD<3>;
 
+    /// @brief calculates the position in the local coordinate from the given point
+    auto local(const VectorType& query) const noexcept -> lalib::VecD<2>;
+
     /// @brief Checks inclusion of the point
     auto check_inclusion(const lalib::VecD<3>& query) const noexcept -> bool;
 
@@ -54,6 +57,9 @@ struct PolygonView {
 
     /// @brief Calculates a foot of a perpendicular
     auto foot(const lalib::VecD<3>& query) const noexcept -> lalib::VecD<3>;
+
+    /// @brief calculates the position in the local coordinate from the given point
+    auto local(const VectorType& query) const noexcept -> lalib::VecD<2>;
 
     /// @brief  Checks if the query point is inside of the polygon
     /// @note   This function DO NOT check whether the query point is on the plane belonging to this polygon.
@@ -119,6 +125,24 @@ inline auto Polygon::base() const noexcept -> lalib::MatD<3, 2> {
 inline auto Polygon::foot(const lalib::VecD<3>& query) const noexcept -> lalib::VecD<3> {
     auto pf = query - (query - this->_verts[0]).dot(this->normal()) * this->normal();
     return pf;
+}
+
+inline auto Polygon::local(const VectorType& query) const noexcept -> lalib::VecD<2> {
+    auto t_arr = std::array<double, 6>();
+    for (auto i = 0u; i < 3; ++i) {
+        t_arr[i] = this->_base[0][i];
+        t_arr[i + 3] = this->_base[1][i];
+    }
+    auto t = lalib::MatD<2, 3>(std::move(t_arr));
+    auto uv = this->_base[0].dot(this->_base[1]);
+    auto tt_inv = lalib::MatD<2, 2>({
+        1.0 , -uv, -uv, 1.0
+    });
+    auto tt = lalib::MatD<2, 3>::uninit();
+    lalib::mul(1.0 / (1.0 - std::pow(uv, 2)), tt_inv, t, 1.0, tt);
+    
+    auto q = tt * query;
+    return q;
 }
 
 inline auto Polygon::check_inclusion(const lalib::VecD<3>& query) const noexcept -> bool {
@@ -198,6 +222,24 @@ inline auto PolygonView::base() const noexcept -> lalib::MatD<3, 2> {
 inline auto PolygonView::foot(const lalib::VecD<3>& query) const noexcept -> lalib::VecD<3> {
     auto pf = query - (query - this->_verts[0].get()).dot(this->normal()) * this->normal();
     return pf;
+}
+
+inline auto PolygonView::local(const VectorType& query) const noexcept -> lalib::VecD<2> {
+    auto t_arr = std::array<double, 6>();
+    for (auto i = 0u; i < 3; ++i) {
+        t_arr[i] = this->_base[0][i];
+        t_arr[i + 3] = this->_base[1][i];
+    }
+    auto t = lalib::MatD<2, 3>(std::move(t_arr));
+    auto uv = this->_base[0].dot(this->_base[1]);
+    auto tt_inv = lalib::MatD<2, 2>({
+        1.0 , -uv, -uv, 1.0
+    });
+    auto tt = lalib::MatD<2, 3>::uninit();
+    lalib::mul(1.0 / (1.0 - std::pow(uv, 2)), tt_inv, t, 1.0, tt);
+    
+    auto q = tt * query;
+    return q;
 }
 
 inline auto PolygonView::check_inclusion(const lalib::VecD<3>& query) const noexcept -> bool {

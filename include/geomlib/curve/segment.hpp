@@ -1,4 +1,5 @@
 #pragma once 
+#include <cstdint>
 #ifndef GEOMLIB_SEGMENT_HPP
 #define GEOMLIB_SEGMENT_HPP
 
@@ -55,7 +56,11 @@ public:
     /// @brief calculates a foot of a perpendicular
     auto foot(const VectorType& query) const noexcept -> VectorType;
 
+    /// @brief calculates the position in the local coordinate from the given point
+    auto local(const VectorType& query) const noexcept -> double;
+
     /// @brief checks if this segment includes the query point
+    /// @note   This function DO NOT check whether the query point is on the line belonging to this segment.
     auto check_inclusion(const VectorType& query) const noexcept -> bool;
 
 
@@ -113,6 +118,9 @@ public:
 
     /// @brief calculates a foot of a perpendicular
     auto foot(const VectorType& query) const noexcept -> VectorType;
+
+    /// @brief calculates the position in the local coordinate from the given point
+    auto local(const VectorType& query) const noexcept -> double;
 
     /// @brief checks if this segment includes the query point
     /// @note   This function DO NOT check whether the query point is on the line belonging to this segment.
@@ -205,6 +213,12 @@ inline auto SegmentView<N>::foot(const VectorType& query) const noexcept -> Vect
 }
 
 template<size_t N>
+inline auto SegmentView<N>::local(const VectorType& query) const noexcept -> double {
+    auto s = (query - this->_ps.get()).dot(this->tangent(0.0)) / this->length();
+    return s;
+}
+
+template<size_t N>
 inline auto SegmentView<N>::check_inclusion(const VectorType& query) const noexcept -> bool {
     auto sign = (query - this->_ps.get()).dot(query - this->_pe.get());
     return sign < 0;
@@ -275,6 +289,11 @@ inline auto Segment<N>::distance(const VectorType &query) const noexcept -> doub
 template<size_t N>
 inline auto Segment<N>::foot(const VectorType& query) const noexcept -> VectorType {
     return this->_segment_view.foot(query);
+}
+
+template<size_t N>
+inline auto Segment<N>::local(const VectorType& query) const noexcept -> double {
+    return this->_segment_view.local(query);
 }
 
 template<size_t N>

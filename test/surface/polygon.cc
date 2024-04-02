@@ -126,6 +126,14 @@ TEST_F(PolygonTests, FootTest) {
     EXPECT_DOUBLE_EQ(0.5, foot[2]);
 }
 
+TEST_F(PolygonTests, LocalConversionTest) {
+    auto query = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
+    auto local = rect->local(query);
+
+    EXPECT_DOUBLE_EQ(0.5, local[0]);
+    EXPECT_DOUBLE_EQ(0.5, local[1]);
+}
+
 TEST_F(PolygonTests, InclusionTest) {
     auto query1 = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
     auto query2 = lalib::VecD<3>({ 0.0, 2.0, 0.5 });
@@ -186,6 +194,14 @@ TEST_F(PolygonViewTests, FootTest) {
     EXPECT_DOUBLE_EQ(0.0, foot[0]);
     EXPECT_DOUBLE_EQ(0.5, foot[1]);
     EXPECT_DOUBLE_EQ(0.5, foot[2]);
+}
+
+TEST_F(PolygonViewTests, LocalConversionTest) {
+    auto query = lalib::VecD<3>({ 1.0, 0.5, 0.5 });
+    auto local = rect->local(query);
+
+    EXPECT_DOUBLE_EQ(0.5, local[0]);
+    EXPECT_DOUBLE_EQ(0.5, local[1]);
 }
 
 TEST_F(PolygonViewTests, InclusionTest) {

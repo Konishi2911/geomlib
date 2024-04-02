@@ -70,6 +70,17 @@ TEST(SegmentTests, FootTest) {
     EXPECT_DOUBLE_EQ(0.0, foot1[1]);
 }
 
+TEST(SegmentTests, LocalConversionTest) {
+    auto sp = lalib::VecD<2>({0.0, 0.0});
+    auto ep = lalib::VecD<2>({2.0, 0.0});
+    auto seg = geomlib::Segment(sp, ep);
+
+    auto query = lalib::VecD<2>({ 0.7, 0.0 });
+    auto local = seg.local(query);
+    
+    EXPECT_DOUBLE_EQ(0.35, local);
+}
+
 TEST(SegmentTests, InclusionTest) {
     auto sp = lalib::VecD<2>({0.0, 0.0});
     auto ep = lalib::VecD<2>({1.0, 0.0});
