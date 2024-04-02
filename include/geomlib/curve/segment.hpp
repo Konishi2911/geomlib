@@ -1,5 +1,4 @@
 #pragma once 
-#include <cstdint>
 #ifndef GEOMLIB_SEGMENT_HPP
 #define GEOMLIB_SEGMENT_HPP
 
