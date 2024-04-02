@@ -58,6 +58,41 @@ TEST(SegmentTests, DistanceTest) {
     EXPECT_DOUBLE_EQ(std::sqrt(2.0), seg.distance(q3));
 }
 
+TEST(SegmentTests, FootTest) {
+    auto sp = lalib::VecD<2>({0.0, 0.0});
+    auto ep = lalib::VecD<2>({1.0, 0.0});
+    auto seg = geomlib::Segment(sp, ep);
+
+    auto q1 = lalib::VecD<2>({ 0.2, 2.0 });
+    auto foot1 = seg.foot(q1);
+    
+    EXPECT_DOUBLE_EQ(0.2, foot1[0]);
+    EXPECT_DOUBLE_EQ(0.0, foot1[1]);
+}
+
+TEST(SegmentTests, LocalConversionTest) {
+    auto sp = lalib::VecD<2>({0.0, 0.0});
+    auto ep = lalib::VecD<2>({2.0, 0.0});
+    auto seg = geomlib::Segment(sp, ep);
+
+    auto query = lalib::VecD<2>({ 0.7, 0.0 });
+    auto local = seg.local(query);
+    
+    EXPECT_DOUBLE_EQ(0.35, local);
+}
+
+TEST(SegmentTests, InclusionTest) {
+    auto sp = lalib::VecD<2>({0.0, 0.0});
+    auto ep = lalib::VecD<2>({1.0, 0.0});
+    auto seg = geomlib::Segment(sp, ep);
+
+    auto q1 = lalib::VecD<2>({ 0.5, 0.0});
+    auto q2 = lalib::VecD<2>({ 1.1, 0.0});
+
+    EXPECT_TRUE(seg.check_inclusion(q1));
+    EXPECT_FALSE(seg.check_inclusion(q2));
+}
+
 TEST(SegmentTests, AffineTransformationTest) {
     auto sp = lalib::VecD<3>({0.0, 1.0, 2.0});
     auto ep = lalib::VecD<3>({2.0, 4.0, 1.0});

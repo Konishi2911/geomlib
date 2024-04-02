@@ -24,7 +24,7 @@ public:
 	class Node;
 	enum class Child { Left, Right };
 
-	KdTree(std::vector<T>&& nodes, Proj&& proj = {}) noexcept: _nodes( __construct(std::move(nodes), std::move(proj)) ), _proj(proj) {}  
+	KdTree(std::vector<T>&& nodes, Proj&& proj = {}) noexcept: _nodes( __construct(std::move(nodes), proj) ), _proj(std::move(proj)) {}  
 
 	auto size() const noexcept -> size_t;
 
@@ -42,7 +42,7 @@ private:
 
 	auto __get_entry_point() const noexcept -> std::weak_ptr<Node> { return this->_nodes.back(); }
 
-	static auto __construct(std::vector<T>&& nodes, Proj proj) noexcept -> std::vector<std::shared_ptr<Node>>;
+	static auto __construct(std::vector<T>&& nodes, const Proj& proj) noexcept -> std::vector<std::shared_ptr<Node>>;
 	static auto __distance(std::weak_ptr<Node> node, const V& query, Proj proj) noexcept -> double;
 	static auto __get_leaf(std::weak_ptr<Node> node, const V& query, std::stack<std::pair<Child, std::weak_ptr<Node>>>& stack) noexcept -> std::weak_ptr<Node>;
 };
@@ -205,7 +205,7 @@ auto KdTree<T, N, V, Proj>::radius_search(const V& query, double radius) const n
 }
 
 template<typename T, size_t N, typename V, class Proj>
-auto KdTree<T, N, V, Proj>::__construct(std::vector<T>&& values, Proj proj) noexcept -> std::vector<std::shared_ptr<Node>> {
+auto KdTree<T, N, V, Proj>::__construct(std::vector<T>&& values, const Proj& proj) noexcept -> std::vector<std::shared_ptr<Node>> {
 	auto nodes = std::vector<std::shared_ptr<Node>>();
 	auto indices = std::vector<size_t>(values.size(), 0);
 	std::iota(indices.begin(), indices.end(), 0);

@@ -52,6 +52,17 @@ public:
     /// @param query    query point
     auto distance(const VectorType& query) const noexcept -> double;
 
+    /// @brief calculates a foot of a perpendicular
+    auto foot(const VectorType& query) const noexcept -> VectorType;
+
+    /// @brief calculates the position in the local coordinate from the given point
+    auto local(const VectorType& query) const noexcept -> double;
+
+    /// @brief checks if this segment includes the query point
+    /// @note   This function DO NOT check whether the query point is on the line belonging to this segment.
+    auto check_inclusion(const VectorType& query) const noexcept -> bool;
+
+
 private:
     std::reference_wrapper<const PointType> _ps;
     std::reference_wrapper<const PointType> _pe;
@@ -103,6 +114,16 @@ public:
     /// @brief calculates the minimum distance to the query point
     /// @param query    query point
     auto distance(const VectorType& query) const noexcept -> double;
+
+    /// @brief calculates a foot of a perpendicular
+    auto foot(const VectorType& query) const noexcept -> VectorType;
+
+    /// @brief calculates the position in the local coordinate from the given point
+    auto local(const VectorType& query) const noexcept -> double;
+
+    /// @brief checks if this segment includes the query point
+    /// @note   This function DO NOT check whether the query point is on the line belonging to this segment.
+    auto check_inclusion(const VectorType& query) const noexcept -> bool;
 
 private:
     std::array<lalib::SizedVec<double, N>, 2> _p;
@@ -183,6 +204,25 @@ inline auto SegmentView<N>::distance(const VectorType &query) const noexcept -> 
     }
 }
 
+template<size_t N>
+inline auto SegmentView<N>::foot(const VectorType& query) const noexcept -> VectorType {
+    auto v = this->tangent(0.0);
+    auto pf = this->_ps.get() + ((query - this->_ps.get()).dot(v)) * v;
+    return pf;
+}
+
+template<size_t N>
+inline auto SegmentView<N>::local(const VectorType& query) const noexcept -> double {
+    auto s = (query - this->_ps.get()).dot(this->tangent(0.0)) / this->length();
+    return s;
+}
+
+template<size_t N>
+inline auto SegmentView<N>::check_inclusion(const VectorType& query) const noexcept -> bool {
+    auto sign = (query - this->_ps.get()).dot(query - this->_pe.get());
+    return sign < 0;
+}
+
 template <size_t N>
 inline Segment<N>::Segment(const PointType &s, const PointType &e) noexcept:
     _p({s, e}), _segment_view(_p[0], _p[1])
@@ -243,6 +283,21 @@ template <size_t N>
 inline auto Segment<N>::distance(const VectorType &query) const noexcept -> double
 {
     return this->_segment_view.distance(query);
+}
+
+template<size_t N>
+inline auto Segment<N>::foot(const VectorType& query) const noexcept -> VectorType {
+    return this->_segment_view.foot(query);
+}
+
+template<size_t N>
+inline auto Segment<N>::local(const VectorType& query) const noexcept -> double {
+    return this->_segment_view.local(query);
+}
+
+template<size_t N>
+inline auto Segment<N>::check_inclusion(const VectorType& query) const noexcept -> bool {
+    return this->_segment_view.check_inclusion(query);
 }
 }
 
