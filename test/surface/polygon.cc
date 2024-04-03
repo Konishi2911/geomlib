@@ -11,6 +11,7 @@ class PolygonTests: public ::testing::Test {
 protected:
     std::unique_ptr<Polygon> tri;
     std::unique_ptr<Polygon> rect;
+    std::unique_ptr<Polygon> rect2;
     std::unique_ptr<Polygon> penta;
     virtual void SetUp() override {
         tri = std::make_unique<Polygon>(std::vector({
@@ -23,6 +24,12 @@ protected:
             lalib::VecD<3>({ 0.0, 1.0, 0.0 }),
             lalib::VecD<3>({ 0.0, 1.0, 1.0 }),
             lalib::VecD<3>({ 0.0, 0.0, 1.0 })
+        }));
+        rect2 = std::make_unique<Polygon>(std::vector({
+            lalib::VecD<3>({ 0.0, 1.0, 0.0 }),
+            lalib::VecD<3>({ 0.0, 1.0, 1.0 }),
+            lalib::VecD<3>({ 0.0, 0.0, 1.0 }),
+            lalib::VecD<3>({ 0.0, 0.0, 0.0 })
         }));
         penta = std::make_unique<Polygon>(std::vector({
             lalib::VecD<3>({ 0.0, 0.0, 0.0 }),
@@ -49,6 +56,7 @@ protected:
     });
     std::unique_ptr<PolygonView> tri;
     std::unique_ptr<PolygonView> rect;
+    std::unique_ptr<PolygonView> rect2;
     std::unique_ptr<PolygonView> penta;
     virtual void SetUp() override {
         tri = std::make_unique<PolygonView>(std::vector({
@@ -61,6 +69,12 @@ protected:
             std::cref(points[3]),
             std::cref(points[4]),
             std::cref(points[5])
+        }));
+        rect2 = std::make_unique<PolygonView>(std::vector({
+            std::cref(points[3]),
+            std::cref(points[4]),
+            std::cref(points[5]),
+            std::cref(points[0])
         }));
         penta = std::make_unique<PolygonView>(std::vector({
             std::cref(points[0]),
@@ -134,11 +148,21 @@ TEST_F(PolygonTests, FootTest) {
 }
 
 TEST_F(PolygonTests, LocalConversionTest) {
-    auto query = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
-    auto local = rect->local(query);
+    auto query1 = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
+    auto local1 = rect->local(query1);
+    auto restore1 = rect->point(local1);
 
-    EXPECT_DOUBLE_EQ(0.5, local[0]);
-    EXPECT_DOUBLE_EQ(0.5, local[1]);
+    EXPECT_DOUBLE_EQ(restore1[0], query1[0]);
+    EXPECT_DOUBLE_EQ(restore1[1], query1[1]);
+    EXPECT_DOUBLE_EQ(restore1[2], query1[2]);
+
+    auto query2 = lalib::VecD<3>({ 0.0, 0.2, 0.2 });
+    auto local2 = rect2->local(query2);
+    auto restore2 = rect2->point(local2);
+
+    EXPECT_DOUBLE_EQ(restore2[0], query2[0]);
+    EXPECT_DOUBLE_EQ(restore2[1], query2[1]);
+    EXPECT_DOUBLE_EQ(restore2[2], query2[2]);
 }
 
 TEST_F(PolygonTests, InclusionTest) {
@@ -204,11 +228,21 @@ TEST_F(PolygonViewTests, FootTest) {
 }
 
 TEST_F(PolygonViewTests, LocalConversionTest) {
-    auto query = lalib::VecD<3>({ 1.0, 0.5, 0.5 });
-    auto local = rect->local(query);
+    auto query1 = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
+    auto local1 = rect->local(query1);
+    auto restore1 = rect->point(local1);
 
-    EXPECT_DOUBLE_EQ(0.5, local[0]);
-    EXPECT_DOUBLE_EQ(0.5, local[1]);
+    EXPECT_DOUBLE_EQ(restore1[0], query1[0]);
+    EXPECT_DOUBLE_EQ(restore1[1], query1[1]);
+    EXPECT_DOUBLE_EQ(restore1[2], query1[2]);
+
+    auto query2 = lalib::VecD<3>({ 0.0, 0.2, 0.2 });
+    auto local2 = rect2->local(query2);
+    auto restore2 = rect2->point(local2);
+
+    EXPECT_DOUBLE_EQ(restore2[0], query2[0]);
+    EXPECT_DOUBLE_EQ(restore2[1], query2[1]);
+    EXPECT_DOUBLE_EQ(restore2[2], query2[2]);
 }
 
 TEST_F(PolygonViewTests, InclusionTest) {
