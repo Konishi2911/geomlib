@@ -118,12 +118,19 @@ TEST_F(PolygonTests, AreaTest) {
 }
 
 TEST_F(PolygonTests, FootTest) {
-    auto query = lalib::VecD<3>({ 1.0, 0.5, 0.5 });
-    auto foot = rect->foot(query);
+    auto query1 = lalib::VecD<3>({ 1.0, 0.5, 0.5 });
+    auto foot1 = rect->foot(query1);
 
-    EXPECT_DOUBLE_EQ(0.0, foot[0]);
-    EXPECT_DOUBLE_EQ(0.5, foot[1]);
-    EXPECT_DOUBLE_EQ(0.5, foot[2]);
+    auto query2 = lalib::VecD<3>({ 0.2, 0.8, 2.0 });
+    auto foot2 = tri->foot(query2);
+
+    EXPECT_DOUBLE_EQ(0.0, foot1[0]);
+    EXPECT_DOUBLE_EQ(0.5, foot1[1]);
+    EXPECT_DOUBLE_EQ(0.5, foot1[2]);
+
+    EXPECT_DOUBLE_EQ(0.2, foot2[0]);
+    EXPECT_DOUBLE_EQ(0.8, foot2[1]);
+    EXPECT_DOUBLE_EQ(0.0, foot2[2]);
 }
 
 TEST_F(PolygonTests, LocalConversionTest) {

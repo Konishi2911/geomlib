@@ -94,6 +94,7 @@ inline auto Polygon::point(const lalib::VecD<2>& s) const -> PointType {
 
 inline auto Polygon::normal(const lalib::VecD<2>&) const -> PointType {
     auto n = lalib::cross(this->_base[0], this->_base[1]);
+    n = n / n.norm2();
     return n;
 }
 
@@ -191,6 +192,7 @@ inline auto PolygonView::point(const lalib::VecD<2>& s) const -> PointType {
 
 inline auto PolygonView::normal(const lalib::VecD<2>&) const -> PointType {
     auto n = lalib::cross(this->_base[0], this->_base[1]);
+    n = n / n.norm2();
     return n;
 }
 
