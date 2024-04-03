@@ -94,6 +94,7 @@ inline auto Polygon::point(const lalib::VecD<2>& s) const -> PointType {
 
 inline auto Polygon::normal(const lalib::VecD<2>&) const -> PointType {
     auto n = lalib::cross(this->_base[0], this->_base[1]);
+    n = n / n.norm2();
     return n;
 }
 
@@ -141,7 +142,7 @@ inline auto Polygon::local(const VectorType& query) const noexcept -> lalib::Vec
     auto tt = lalib::MatD<2, 3>::uninit();
     lalib::mul(1.0 / (1.0 - std::pow(uv, 2)), tt_inv, t, 1.0, tt);
     
-    auto q = tt * query;
+    auto q = tt * (query - this->origin());
     return q;
 }
 
@@ -191,6 +192,7 @@ inline auto PolygonView::point(const lalib::VecD<2>& s) const -> PointType {
 
 inline auto PolygonView::normal(const lalib::VecD<2>&) const -> PointType {
     auto n = lalib::cross(this->_base[0], this->_base[1]);
+    n = n / n.norm2();
     return n;
 }
 
@@ -238,7 +240,7 @@ inline auto PolygonView::local(const VectorType& query) const noexcept -> lalib:
     auto tt = lalib::MatD<2, 3>::uninit();
     lalib::mul(1.0 / (1.0 - std::pow(uv, 2)), tt_inv, t, 1.0, tt);
     
-    auto q = tt * query;
+    auto q = tt * (query - this->origin());
     return q;
 }
 
