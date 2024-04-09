@@ -129,6 +129,9 @@ inline auto Polygon::foot(const lalib::VecD<3>& query) const noexcept -> lalib::
 }
 
 inline auto Polygon::local(const VectorType& query) const noexcept -> lalib::VecD<2> {
+    assert((query - this->origin()).dot(this->normal()) < 1e-6);
+    assert(this->check_inclusion(query));
+
     auto t_arr = std::array<double, 6>();
     for (auto i = 0u; i < 3; ++i) {
         t_arr[i] = this->_base[0][i];
@@ -147,6 +150,8 @@ inline auto Polygon::local(const VectorType& query) const noexcept -> lalib::Vec
 }
 
 inline auto Polygon::check_inclusion(const lalib::VecD<3>& query) const noexcept -> bool {
+    assert((query - this->origin()).dot(this->normal()) < 1e-6);
+
     auto l0 = (this->_verts[1] - this->_verts[0]);
     auto cross0 = lalib::cross(query - this->_verts[0], l0);
     auto n = this->_verts.size();
@@ -227,6 +232,9 @@ inline auto PolygonView::foot(const lalib::VecD<3>& query) const noexcept -> lal
 }
 
 inline auto PolygonView::local(const VectorType& query) const noexcept -> lalib::VecD<2> {
+    assert((query - this->origin()).dot(this->normal()) < 1e-6);
+    assert(this->check_inclusion(query));
+
     auto t_arr = std::array<double, 6>();
     for (auto i = 0u; i < 3; ++i) {
         t_arr[i] = this->_base[0][i];
@@ -245,6 +253,8 @@ inline auto PolygonView::local(const VectorType& query) const noexcept -> lalib:
 }
 
 inline auto PolygonView::check_inclusion(const lalib::VecD<3>& query) const noexcept -> bool {
+    assert((query - this->origin()).dot(this->normal()) < 1e-6);
+
     auto l0 = (this->_verts[1].get() - this->_verts[0].get());
     auto cross0 = lalib::cross(query - this->_verts[0].get(), l0);
     auto n = this->_verts.size();
