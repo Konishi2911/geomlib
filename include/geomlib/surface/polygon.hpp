@@ -115,10 +115,12 @@ inline auto Polygon::area() const noexcept -> double {
 }
 
 inline auto Polygon::base() const noexcept -> lalib::MatD<3, 2> {
+    auto u = this->_base[0];
+    auto v = this->_base[1];
     auto base = lalib::MatD<3, 2>({
-        this->_base[0][0], this->_base[1][0],
-        this->_base[0][1], this->_base[1][1],
-        this->_base[0][2], this->_base[1][2]
+        u[0], v[0],
+        u[1], v[1],
+        u[2], v[2]
     });
     return base;
 }
@@ -132,20 +134,17 @@ inline auto Polygon::local(const VectorType& query) const noexcept -> lalib::Vec
     assert((query - this->origin()).dot(this->normal()) < 1e-6);
     assert(this->check_inclusion(query));
 
-    auto t_arr = std::array<double, 6>();
-    for (auto i = 0u; i < 3; ++i) {
-        t_arr[i] = this->_base[0][i];
-        t_arr[i + 3] = this->_base[1][i];
-    }
-    auto t = lalib::MatD<2, 3>(std::move(t_arr));
-    auto uv = this->_base[0].dot(this->_base[1]);
-    auto tt_inv = lalib::MatD<2, 2>({
-        1.0 , -uv, -uv, 1.0
-    });
-    auto tt = lalib::MatD<2, 3>::uninit();
-    lalib::mul(1.0 / (1.0 - std::pow(uv, 2)), tt_inv, t, 1.0, tt);
-    
-    auto q = tt * (query - this->origin());
+    auto u = this->_base[0];
+    auto v = this->_base[1];
+    auto uu = u.dot(u);
+    auto uv = u.dot(v);
+    auto vv = v.dot(v);
+
+    auto p = query - this->origin();
+    auto alpha = 1.0 / (uu * vv - std::pow(uv, 2));
+    auto qx = alpha * (vv * u.dot(p) - uv * v.dot(p));
+    auto qy = alpha * (-uv * u.dot(p) + uu * v.dot(p));
+    auto q = lalib::VecD<2>({ qx, qy });
     return q;
 }
 
@@ -170,8 +169,6 @@ inline auto Polygon::__calc_base(const std::vector<PointType>& verts) noexcept -
     auto n = verts.size();
     auto u1 = verts[1] - verts[0]; 
     auto u2 = verts[n - 1] - verts[0]; 
-    u1 = u1 / u1.norm2();
-    u2 = u2 / u2.norm2();
 
     return std::array { u1, u2 };
 }
@@ -218,10 +215,12 @@ inline auto PolygonView::area() const noexcept -> double {
 }
 
 inline auto PolygonView::base() const noexcept -> lalib::MatD<3, 2> {
+    auto u = this->_base[0];
+    auto v = this->_base[1];
     auto base = lalib::MatD<3, 2>({
-        this->_base[0][0], this->_base[1][0],
-        this->_base[0][1], this->_base[1][1],
-        this->_base[0][2], this->_base[1][2]
+        u[0], v[0],
+        u[1], v[1],
+        u[2], v[2]
     });
     return base;
 }
@@ -235,20 +234,17 @@ inline auto PolygonView::local(const VectorType& query) const noexcept -> lalib:
     assert((query - this->origin()).dot(this->normal()) < 1e-6);
     assert(this->check_inclusion(query));
 
-    auto t_arr = std::array<double, 6>();
-    for (auto i = 0u; i < 3; ++i) {
-        t_arr[i] = this->_base[0][i];
-        t_arr[i + 3] = this->_base[1][i];
-    }
-    auto t = lalib::MatD<2, 3>(std::move(t_arr));
-    auto uv = this->_base[0].dot(this->_base[1]);
-    auto tt_inv = lalib::MatD<2, 2>({
-        1.0 , -uv, -uv, 1.0
-    });
-    auto tt = lalib::MatD<2, 3>::uninit();
-    lalib::mul(1.0 / (1.0 - std::pow(uv, 2)), tt_inv, t, 1.0, tt);
-    
-    auto q = tt * (query - this->origin());
+    auto u = this->_base[0];
+    auto v = this->_base[1];
+    auto uu = u.dot(u);
+    auto uv = u.dot(v);
+    auto vv = v.dot(v);
+
+    auto p = query - this->origin();
+    auto alpha = 1.0 / (uu * vv - std::pow(uv, 2));
+    auto qx = alpha * (vv * u.dot(p) - uv * v.dot(p));
+    auto qy = alpha * (-uv * u.dot(p) + uu * v.dot(p));
+    auto q = lalib::VecD<2>({ qx, qy });
     return q;
 }
 
@@ -273,8 +269,6 @@ inline auto PolygonView::__calc_base(const std::vector<std::reference_wrapper<co
     auto n = verts.size();
     auto u1 = verts[1].get() - verts[0].get();
     auto u2 = verts[n - 1].get() - verts[0].get();
-    u1 = u1 / u1.norm2();
-    u2 = u2 / u2.norm2();
 
     return std::array { u1, u2 };
 }
