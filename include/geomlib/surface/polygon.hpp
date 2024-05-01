@@ -27,6 +27,9 @@ struct Polygon {
     /// @brief Calculates a foot of a perpendicular
     auto foot(const lalib::VecD<3>& query) const noexcept -> lalib::VecD<3>;
 
+    /// @brief Calculate a intersection
+    auto intersection(const lalib::VecD<3>& query, const lalib::VecD<3>& v) const noexcept -> lalib::VecD<3>;
+
     /// @brief calculates the position in the local coordinate from the given point
     auto local(const VectorType& query) const noexcept -> lalib::VecD<2>;
 
@@ -128,6 +131,12 @@ inline auto Polygon::base() const noexcept -> lalib::MatD<3, 2> {
 inline auto Polygon::foot(const lalib::VecD<3>& query) const noexcept -> lalib::VecD<3> {
     auto pf = query - (query - this->_verts[0]).dot(this->normal()) * this->normal();
     return pf;
+}
+
+inline auto Polygon::intersection(const lalib::VecD<3>& query, const lalib::VecD<3>& v) const noexcept -> lalib::VecD<3> {
+    auto n = this->normal();
+    auto pi = query + (this->_verts[0].dot(n) - query.dot(n)) / (n.dot(v)) * v;
+    return pi;
 }
 
 inline auto Polygon::local(const VectorType& query) const noexcept -> lalib::VecD<2> {

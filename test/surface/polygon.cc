@@ -227,6 +227,16 @@ TEST_F(PolygonViewTests, FootTest) {
     EXPECT_DOUBLE_EQ(0.5, foot[2]);
 }
 
+TEST_F(PolygonTests, IntersectionTest) {
+    auto query = lalib::VecD<3>({ 0.0, 0.0, 1.0 });
+    auto v = lalib::VecD<3>({ 0.0, 1.0 / std::sqrt(2), -1.0 / std::sqrt(2) });
+    auto intersec = tri->intersection(query, v);
+
+    EXPECT_DOUBLE_EQ(0.0, intersec[0]);
+    EXPECT_DOUBLE_EQ(1.0, intersec[1]);
+    EXPECT_DOUBLE_EQ(0.0, intersec[2]);
+}
+
 TEST_F(PolygonViewTests, LocalConversionTest) {
     auto query1 = lalib::VecD<3>({ 0.0, 0.5, 0.5 });
     auto local1 = rect->local(query1);
