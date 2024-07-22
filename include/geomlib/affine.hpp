@@ -11,14 +11,16 @@
 namespace geomlib {
 
 template<typename T, size_t N>
-concept AffineTransformableCurve = 
-    Curve<T> &&
+concept AffineTransformable =
     requires(T& t) {
         { t.transform(std::declval<const Affine<N>&>()) };
     } &&
     requires(const T& t) {
         { t.transformed(std::declval<const Affine<N>&>()) } -> std::convertible_to<T>;
     };
+
+template<typename T, size_t N>
+concept AffineTransformableCurve = Curve<T> && AffineTransformable<T, N>;
 
 
 template<Curve C, size_t N>
